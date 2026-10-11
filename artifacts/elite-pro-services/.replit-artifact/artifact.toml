@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Elite Pro Services"
+description = "A responsive Arabic RTL website for Elite Pro Services, presenting the agency's web, app, AI, and digital marketing work and inviting clients to start a project."
+version = "1.0.0"
+id = "artifacts/elite-pro-services"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23874
+
+[services.development]
+run = "pnpm --filter @workspace/elite-pro-services run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/elite-pro-services", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/elite-pro-services/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23874"
+BASE_PATH = "/"

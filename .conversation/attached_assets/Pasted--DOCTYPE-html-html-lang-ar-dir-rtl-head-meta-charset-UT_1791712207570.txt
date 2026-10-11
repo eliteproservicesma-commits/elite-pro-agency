@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Elite Pro Services — Ultra-Luxury 3D & AI Agency | عمران شتوان</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- GSAP & CustomEase CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
+<style>
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-neon: #a855f7;
+  --color-dark: #030712;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--color-dark);
+  color: var(--color-white);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+#app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+canvas { display: block; }
+
+/* Header */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 90px;
+  padding: 0 40px;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  background: rgba(3, 7, 18, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+.logo-wrap span { color: var(--color-neon); }
+.header-menu {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 32px;
+}
+.header-menu__item {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.header-menu__item:hover { color: var(--color-white); }
+
+.nav-cta {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+}
+.nav-cta:hover { background: rgba(168, 85, 247, 0.3); transform: translateY(-2px); }
+
+/* Hero Section */
+.hero {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  opacity: 0.35;
+}
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.title-block {
+  padding-left: 50px;
+  position: relative;
+}
+.title-h1 {
+  font-size: clamp(3rem, 7vw, 7.5rem);
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--color-white);
+  font-family: 'Syne', sans-serif;
+  text-transform: uppercase;
+}
+.title-row { display: flex; }
+.title-charts-cont { display: flex; overflow: hidden; }
+.title-row-2 { padding-left: 40px; }
+
+.first-desc {
+  position: absolute;
+  top: -40px;
+  right: 50px;
+  overflow: hidden;
+  display: flex;
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  font-family: 'JetBrains Mono', monospace;
+}
+.second-desc {
+  position: absolute;
+  bottom: -60px;
+  left: 100px;
+  overflow: hidden;
+  display: flex;
+  font-size: 16px;
+  color: var(--color-neon);
+  font-weight: 600;
+}
+.copyright {
+  position: absolute;
+  bottom: 30px;
+  left: 40px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-family: 'JetBrains Mono', monospace;
+}
+.scroll-to {
+  position: absolute;
+  bottom: 30px;
+  left: 300px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  font-family: 'JetBrains Mono', monospace;
+}
+.book-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 40px;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+.book-btn__circle {
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  border-radius: 50%;
+  position: absolute;
+  transition: all 0.3s;
+}
+.book-btn:hover .book-btn__circle { border-color: var(--color-neon); transform: scale(1.05); background: rgba(168,85,247,0.1); }
+.btn-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  z-index: 2;
+}
+
+/* Content Sections */
+.section {
+  position: relative;
+  z-index: 10;
+  padding: 120px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fff 30%, var(--color-neon));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.section-sub {
+  color: rgba(255,255,255,0.6);
+  font-size: 1.1rem;
+  margin-bottom: 60px;
+}
+
+/* Contact & Services Dropdown Form */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 24px;
+  padding: 50px;
+  backdrop-filter: blur(20px);
+}
+.form-group {
+  margin-bottom: 24px;
+  position: relative;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--color-neon);
+  margin-bottom: 8px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.form-control {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.form-control:focus { border-color: var(--color-neon); }
+
+/* Custom Services Dropdown Modal */
+.services-dropdown-container { position: relative; cursor: pointer; }
+.services-modal {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  width: 100%;
+  background: #0b0f19;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 14px;
+  padding: 16px;
+  display: none;
+  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.services-modal.active { display: block; }
+.service-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+.service-option:hover { background: rgba(168, 85, 247, 0.15); }
+.service-option input[type="radio"] { accent-color: var(--color-neon); width: 18px; height: 18px; }
+
+/* OTP Verification Box */
+.otp-box {
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px dashed rgba(168, 85, 247, 0.3);
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  display: none;
+}
+.otp-box.active { display: block; }
+
+.submit-btn {
+  background: linear-gradient(135deg, #9333ea, #a855f7);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.3s, transform 0.2s;
+  font-family: 'Syne', sans-serif;
+}
+.submit-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+/* Portfolio Grid */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+}
+.portfolio-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s;
+}
+.portfolio-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--color-neon);
+}
+.portfolio-img {
+  width: 100%;
+  height: 220px;
+  background: #1e1b4b;
+  object-fit: cover;
+}
+.portfolio-info { padding: 24px; }
+.portfolio-info h3 { font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 8px; }
+.portfolio-info p { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 16px; }
+.drive-btn {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.2s;
+}
+.drive-btn:hover { background: rgba(255,255,255,0.2); }
+
+@media(max-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr; }
+  .header-menu { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo-wrap">
+    ELITE <span>PRO</span>
+  </div>
+  <ul class="header-menu">
+    <li><a href="#hero" class="header-menu__item">الرئيسية</a></li>
+    <li><a href="#services-sec" class="header-menu__item">الخدمات</a></li>
+    <li><a href="#portfolio-sec" class="header-menu__item">الأعمال</a></li>
+    <li><a href="#contact-sec" class="header-menu__item">اتصل بنا</a></li>
+  </ul>
+  <a href="#contact-sec" class="nav-cta">احجز مشروعك</a>
+</header>
+
+<!-- Hero Section -->
+<section class="hero" id="hero">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="https://cdn.zajno.com/dev/codepen/fossil/fossil.mp4" type="video/mp4"/>
+  </video>
+  <div class="container">
+    <div class="title-block">
+      <div class="title-h1">
+        <div class="title-row title-row-1">
+          <div class="title-charts-cont" id="e"><span>EL</span></div>
+          <div class="title-charts-cont" id="lite"><span>ITE</span></div>
+        </div>
+        <div class="title-row title-row-2">
+          <div class="title-charts-cont" id="pro"><span>PRO</span></div>
+          <div class="title-charts-cont" id="services"><span>SERVICES</span></div>
+        </div>
+      </div>
+      <div class="first-desc"><span>بقيادة عمران شتوان · طنجة، المغرب</span></div>
+      <div class="second-desc"><span>منصات ويب ثلاثية الأبعاد فاخرة</span></div>
+    </div>
+
+    <div class="copyright"><span>2026 ELITE PRO SERVICES ©</span></div>
+    <div class="scroll-to"><span>مرر للأسفل لاكتشاف المزيد</span></div>
+    
+    <a href="#contact-sec" class="book-btn">
+      <div class="book-btn__circle"></div>
+      <div class="btn-text">احجز موعداً</div>
+    </a>
+  </div>
+</section>
+
+<!-- Portfolio Section -->
+<section class="section" id="portfolio-sec">
+  <h2 class="section-title">معرض الأعمال المتميز</h2>
+  <p class="section-sub">أحدث مشاريع الوكالة المصممة بمعايير Awwwards العالمية</p>
+  
+  <div class="portfolio-grid">
+    <div class="portfolio-card">
+      <div class="portfolio-img" style="background: linear-gradient(135deg, #1e1b4b, #311042);"></div>
+      <div class="portfolio-info">
+        <h3>Pypo Finance 3D App</h3>
+        <p>منصة مالية رقمية متطورة مع تحريكات Three.js وتجربة مستخدم فاخرة.</p>
+        <a href="https://drive.google.com/drive/folders/1sQWOJKDH3xDaEO2dSw3IcrQ_Flxa-R1_" target="_blank" class="drive-btn">عرض في أرشيف Drive (163+)</a>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-img" style="background: linear-gradient(135deg, #0f172a, #4c1d95);"></div>
+      <div class="portfolio-info">
+        <h3>Auto École Touijer</h3>
+        <p>موقع ويب تفاعلي متكامل لإدارة تسجيلات وكالة السياقة في طنجة.</p>
+        <a href="https://drive.google.com/drive/folders/1sQWOJKDH3xDaEO2dSw3IcrQ_Flxa-R1_" target="_blank" class="drive-btn">عرض في أرشيف Drive (163+)</a>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-img" style="background: linear-gradient(135deg, #18181b, #581c87);"></div>
+      <div class="portfolio-info">
+        <h3>Maestro Business Catalog</h3>
+        <p>كتالوج رقمي ضخم لأكثر من 100 منتج مع نظام تفاعلي متقدم.</p>
+        <a href="https://drive.google.com/drive/folders/1sQWOJKDH3xDaEO2dSw3IcrQ_Flxa-R1_" target="_blank" class="drive-btn">عرض في أرشيف Drive (163+)</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact & Services Modal Section -->
+<section class="section" id="contact-sec">
+  <h2 class="section-title">ابدأ مشروعك معنا</h2>
+  <p class="section-sub">املأ البيانات أدناه لاختيار خدمتك المطلوبة والتحقق عبر البريد الإلكتروني</p>
+
+  <div class="contact-grid">
+    <form id="agencyForm">
+      <div class="form-group">
+        <label>الاسم الكامل</label>
+        <input type="text" class="form-control" placeholder="أدخل اسمك الكريم" required>
+      </div>
+
+      <div class="form-group">
+        <label>البريد الإلكتروني (Gmail)</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="email" id="userEmail" class="form-control" placeholder="name@gmail.com" required>
+          <button type="button" id="sendOtpBtn" class="submit-btn" style="width: 140px; padding: 12px; font-size: 14px;">إرسال الكود</button>
+        </div>
+      </div>
+
+      <!-- OTP Box -->
+      <div class="otp-box" id="otpBox">
+        <label>أدخل رمز التحقق (OTP) المرسل إلى بريدك</label>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+          <input type="text" id="otpInput" class="form-control" placeholder="123456" maxlength="6">
+          <button type="button" id="verifyOtpBtn" class="submit-btn" style="width: 120px; padding: 12px; font-size: 14px;">تحقق</button>
+        </div>
+        <p id="otpStatus" style="font-size: 12px; color: var(--color-neon); margin-top: 8px;"></p>
+      </div>
+
+      <div class="form-group" style="margin-top: 20px;">
+        <label>اختر الخدمة المطلوبة</label>
+        <div class="services-dropdown-container" id="serviceDropdownToggle">
+          <input type="text" id="selectedServiceInput" class="form-control" placeholder="انقر لاختيار الخدمة..." readonly required>
+          
+          <!-- Modal Dropdown -->
+          <div class="services-modal" id="servicesModal">
+            <label class="service-option"><input type="radio" name="service" value="Web Development"> تطوير مواقع الويب (Web Development)</label>
+            <label class="service-option"><input type="radio" name="service" value="App Development"> تطوير التطبيقات (App Development)</label>
+            <label class="service-option"><input type="radio" name="service" value="Video Animation"> الموشن جرافيك والأنيماشن (Video Animation)</label>
+            <label class="service-option"><input type="radio" name="service" value="Content Marketing"> التسويق بالمحتوى (Content Marketing)</label>
+            <label class="service-option"><input type="radio" name="service" value="Email Marketing"> التسويق عبر البريد (Email Marketing)</label>
+            <label class="service-option"><input type="radio" name="service" value="Reputation Management"> إدارة السمعة الرقمية (Reputation Management)</label>
+            <label class="service-option"><input type="radio" name="service" value="SEO"> تحسين محركات البحث (SEO)</label>
+            <label class="service-option"><input type="radio" name="service" value="PPC Marketing"> الإعلانات المدفوعة (PPC Marketing)</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>تفاصيل إضافية عن المشروع</label>
+        <textarea class="form-control" rows="4" placeholder="اكتب فكرة مشروعك هنا..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">إرسال الطلب نهائياً</button>
+    </form>
+
+    <div>
+      <h3 style="font-family: 'Syne', sans-serif; font-size: 24px; margin-bottom: 20px;">معلومات الاتصال</h3>
+      <p style="color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 20px;">نحن نعمل باستمرار على بناء تجارب رقمية استثنائية للشركات والعلامات التجارية الرائدة.</p>
+      <ul style="list-style: none; color: rgba(255,255,255,0.8); display: flex; flex-direction: column; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+        <li>📍 المقر: طنجة، مسنانة، المغرب</li>
+        <li>📞 الهاتف: +212 722 016 229</li>
+        <li>✉️ البريد: eliteproservices.ma@gmail.com</li>
+        <li>👑 المؤسس: عمران شتوان (The Lone Don)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Scripts (GSAP & Three.js Liquid Glass) -->
+<script>
+// GSAP Hero Reveal Animation
+gsap.registerPlugin(CustomEase);
+const customEaseIn = CustomEase.create('custom-ease-in', '0.52, 0.00, 0.48, 1.00');
+
+window.addEventListener('DOMContentLoaded', () => {
+  const tl = gsap.timeline();
+  tl.fromTo('.header', {y: '-100%'}, {y: '0%', duration: 1.2, ease: customEaseIn})
+    .fromTo('#e span', {x: '100%'}, {x: '0%', duration: 1.2, ease: customEaseIn}, 0.2)
+    .fromTo('#lite span', {x: '-100%'}, {x: '0%', duration: 1.2, ease: customEaseIn}, 0.2)
+    .fromTo('#pro span', {x: '100%'}, {x: '0%', duration: 1.2, ease: customEaseIn}, 0.4)
+    .fromTo('#services span', {x: '-100%'}, {x: '0%', duration: 1.2, ease: customEaseIn}, 0.4);
+
+  // Services Dropdown Toggle Logic
+  const toggle = document.getElementById('serviceDropdownToggle');
+  const modal = document.getElementById('servicesModal');
+  const input = document.getElementById('selectedServiceInput');
+
+  toggle.addEventListener('click', () => {
+    modal.classList.toggle('active');
+  });
+
+  document.querySelectorAll('input[name="service"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      input.value = e.target.value;
+      modal.classList.remove('active');
+    });
+  });
+
+  // Simulated Gmail OTP Logic
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const otpBox = document.getElementById('otpBox');
+  const userEmail = document.getElementById('userEmail');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  const otpInput = document.getElementById('otpInput');
+  const otpStatus = document.getElementById('otpStatus');
+
+  sendOtpBtn.addEventListener('click', () => {
+    if(userEmail.value && userEmail.value.includes('@gmail.com')) {
+      otpBox.classList.add('active');
+      otpStatus.textContent = "تم إرسال كود التحقق (6 أرقام) إلى بريدك بنجاح!";
+      otpStatus.style.color = "var(--color-neon)";
+    } else {
+      alert("المرجو إدخال بريد Gmail صحيح أولاً!");
+    }
+  });
+
+  verifyOtpBtn.addEventListener('click', () => {
+    if(otpInput.value.length === 6) {
+      otpStatus.textContent = "✓ تم التحقق من البريد الإلكتروني بنجاح!";
+      otpStatus.style.color = "#22c55e";
+    } else {
+      alert("المرجو إدخال الرمز المكون من 6 أرقام بشكل صحيح.");
+    }
+  });
+});
+</script>
+
+<!-- Three.js Background Liquid Glass Shader -->
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js";
+
+var app = document.getElementById("app");
+var renderer = new THREE.WebGLRenderer({antialias:false});
+renderer.setPixelRatio(Math.min(2, devicePixelRatio||1));
+renderer.setSize(innerWidth, innerHeight);
+app.appendChild(renderer.domElement);
+
+var scene = new THREE.Scene();
+var camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+
+var bgCanvas = document.createElement("canvas");
+var bgCtx = bgCanvas.getContext("2d");
+var bgTexture = new THREE.CanvasTexture(bgCanvas);
+
+function drawBackground(){
+  var w = renderer.domElement.width;
+  var h = renderer.domElement.height;
+  bgCanvas.width = w;
+  bgCanvas.height = h;
+
+  var grd = bgCtx.createLinearGradient(0, 0, w, h);
+  grd.addColorStop(0, "#000000");
+  grd.addColorStop(0.5, "#05030a");
+  grd.addColorStop(1, "#0d0614");
+  bgCtx.fillStyle = grd;
+  bgCtx.fillRect(0,0,w,h);
+
+  bgCtx.save();
+  bgCtx.globalAlpha = 0.2;
+  var rg = bgCtx.createRadialGradient(w*0.5, h*0.5, 0, w*0.5, h*0.5, w*0.6);
+  rg.addColorStop(0, "rgba(168, 85, 247, 0.4)");
+  rg.addColorStop(1, "rgba(0, 0, 0, 0)");
+  bgCtx.fillStyle = rg;
+  bgCtx.fillRect(0,0,w,h);
+  bgCtx.restore();
+
+  bgTexture.needsUpdate = true;
+}
+
+drawBackground();
+
+var dropletBuf = new Float32Array(40*4);
+var dropletTex = new THREE.DataTexture(dropletBuf, 40, 1, THREE.RGBAFormat, THREE.FloatType);
+dropletTex.needsUpdate = true;
+
+var vertSrc = "void main(){ gl_Position = vec4(position, 1.0); }";
+var fragSrc = [
+"precision highp float;",
+"uniform vec2 uRes;",
+"uniform sampler2D uBg;",
+"void main(){",
+"  vec2 uv = gl_FragCoord.xy / uRes;",
+"  vec3 col = texture2D(uBg, uv).rgb;",
+"  gl_FragColor = vec4(col, 1.0);",
+"}"
+].join("\n");
+
+var mat = new THREE.ShaderMaterial({
+  vertexShader: vertSrc,
+  fragmentShader: fragSrc,
+  uniforms: {
+    uRes: {value: new THREE.Vector2(innerWidth, innerHeight)},
+    uBg: {value: bgTexture}
+  }
+});
+
+scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), mat));
+
+window.addEventListener("resize", function(){
+  renderer.setSize(innerWidth, innerHeight);
+  mat.uniforms.uRes.value.set(innerWidth, innerHeight);
+  drawBackground();
+});
+
+(function loop(){
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>
