@@ -1,5 +1,6 @@
 import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { setBaseUrl } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -20,6 +21,13 @@ import {
 } from 'lucide-react';
 import { NewsletterDemo } from '@/components/newsletter-demo';
 import { PortfolioGallery } from '@/components/portfolio-gallery';
+import { ServiceFeatures } from '@/components/service-features';
+import { TrustGuarantees } from '@/components/trust-guarantees';
+import { PaymentCards } from '@/components/payment-cards';
+import { FloatingAssistant } from '@/components/floating-assistant';
+import { ProjectEstimator } from '@/components/project-estimator';
+import { ClientProgressTracker } from '@/components/client-progress-tracker';
+import { SoundToggle } from '@/components/sound-toggle';
 import { localeOptions, translations, type Locale } from '@/data/translations';
 import {
   Route,
@@ -29,6 +37,8 @@ import {
 } from 'wouter';
 
 const queryClient = new QueryClient();
+const configuredApiOrigin = import.meta.env.VITE_API_BASE_URL?.trim();
+if (configuredApiOrigin) setBaseUrl(configuredApiOrigin);
 
 function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,12 +101,14 @@ function Home() {
             <a href="#work">{copy.nav.work}</a>
             <a href="#studio">{copy.nav.studio}</a>
           </nav>
+          <ClientProgressTracker locale={locale} className="desktop-portal" />
           <label className="language-picker">
             <span className="sr-only">{copy.language}</span>
             <select aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
               {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </label>
+          <SoundToggle locale={locale} />
           <a className="nav-contact" href="#contact">{copy.nav.start} <ArrowLeft size={14} /></a>
           <button className="menu-toggle" type="button" aria-label={menuOpen ? copy.nav.closeMenu : copy.nav.openMenu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)} data-testid="button-menu-toggle">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -107,6 +119,7 @@ function Home() {
             <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
             <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
             <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
+            <ClientProgressTracker locale={locale} className="mobile-portal" />
           </nav>
         </div>
       </header>
@@ -160,10 +173,12 @@ function Home() {
             );
           })}
         </div>
+        <ServiceFeatures locale={locale} />
+        <ProjectEstimator locale={locale} />
       </section>
 
       <PortfolioGallery copy={copy} />
-      <NewsletterDemo copy={copy} />
+      <NewsletterDemo copy={copy} locale={locale} />
 
       <section className="section wrap" id="studio">
         <div className="studio">
@@ -228,7 +243,9 @@ function Home() {
         </div>
       </section>
 
+      <TrustGuarantees locale={locale} />
       <footer className="footer">
+        <div className="wrap"><PaymentCards locale={locale} /></div>
         <div className="wrap footer-inner">
           <a href="#home" className="brand footer-brand"><span>ELITE <b>PRO</b> SERVICES</span></a>
           <span>{copy.footer.studio}</span>
@@ -236,6 +253,7 @@ function Home() {
           <a href="#home" className="to-top" aria-label={copy.footer.backToTop}><ChevronUp size={17} /></a>
         </div>
       </footer>
+      <FloatingAssistant locale={locale} />
     </main>
   );
 }

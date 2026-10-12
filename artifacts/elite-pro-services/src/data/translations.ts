@@ -164,9 +164,9 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     studio: {
       eyebrow: 'About the studio / 04', first: 'A small team.', second: 'An open mind.',
-      paragraphOne: 'Elite Pro Services is an independent digital studio led by Imran Chetouane in Mesnana, Tangier. We work where design and technology meet, turning ambitious ideas into clear, useful, and considered experiences.',
+      paragraphOne: 'Elite Pro Services is an independent digital studio led by Imran Chetouan in Mesnana, Tangier. We work where design and technology meet, turning ambitious ideas into clear, useful, and considered experiences.',
       paragraphTwo: 'We partner with businesses and brands looking for a distinctive digital presence—from the first line on a website to the last detail in a product.',
-      founder: 'Imran Chetouane', role: 'Founder & creative director · The Lone Don', imageLabel: '3D artwork',
+      founder: 'Imran Chetouan', role: 'Founder & creative director · The Lone Don', imageLabel: '3D artwork',
     },
     process: {
       eyebrow: 'How we work / 05', first: 'A clear path.', second: 'A meaningful result.',
@@ -244,9 +244,9 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     studio: {
       eyebrow: 'À propos du studio / 04', first: 'Une petite équipe.', second: 'Une curiosité sans fin.',
-      paragraphOne: 'Elite Pro Services est un studio numérique indépendant dirigé par Imran Chetouane à Mesnana, Tanger. À la croisée du design et de la technologie, nous transformons les idées ambitieuses en expériences claires et utiles.',
+      paragraphOne: 'Elite Pro Services est un studio numérique indépendant dirigé par Imran Chetouan à Mesnana, Tanger. À la croisée du design et de la technologie, nous transformons les idées ambitieuses en expériences claires et utiles.',
       paragraphTwo: 'Nous accompagnons les entreprises et les marques qui souhaitent une présence numérique singulière, de la première ligne du site au dernier détail du produit.',
-      founder: 'Imran Chetouane', role: 'Fondateur et directeur créatif · The Lone Don', imageLabel: 'Œuvre 3D',
+      founder: 'Imran Chetouan', role: 'Fondateur et directeur créatif · The Lone Don', imageLabel: 'Œuvre 3D',
     },
     process: {
       eyebrow: 'Notre méthode / 05', first: 'Un parcours clair.', second: 'Un résultat utile.',
@@ -324,9 +324,9 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     studio: {
       eyebrow: 'Sobre el estudio / 04', first: 'Un equipo pequeño.', second: 'Curiosidad sin límites.',
-      paragraphOne: 'Elite Pro Services es un estudio digital independiente dirigido por Imran Chetouane en Mesnana, Tánger. Trabajamos entre diseño y tecnología para convertir ideas ambiciosas en experiencias claras y útiles.',
+      paragraphOne: 'Elite Pro Services es un estudio digital independiente dirigido por Imran Chetouan en Mesnana, Tánger. Trabajamos entre diseño y tecnología para convertir ideas ambiciosas en experiencias claras y útiles.',
       paragraphTwo: 'Colaboramos con empresas y marcas que buscan una presencia digital propia, desde la primera línea de una web hasta el último detalle de un producto.',
-      founder: 'Imran Chetouane', role: 'Fundador y director creativo · The Lone Don', imageLabel: 'Obra 3D',
+      founder: 'Imran Chetouan', role: 'Fundador y director creativo · The Lone Don', imageLabel: 'Obra 3D',
     },
     process: {
       eyebrow: 'Cómo trabajamos / 05', first: 'Un camino claro.', second: 'Un resultado con sentido.',
@@ -404,9 +404,9 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     studio: {
       eyebrow: 'Über das Studio / 04', first: 'Ein kleines Team.', second: 'Neugier ohne Ende.',
-      paragraphOne: 'Elite Pro Services ist ein unabhängiges Digitalstudio unter der Leitung von Imran Chetouane in Mesnana, Tanger. An der Schnittstelle von Design und Technik machen wir aus ambitionierten Ideen klare und nützliche Erlebnisse.',
+      paragraphOne: 'Elite Pro Services ist ein unabhängiges Digitalstudio unter der Leitung von Imran Chetouan in Mesnana, Tanger. An der Schnittstelle von Design und Technik machen wir aus ambitionierten Ideen klare und nützliche Erlebnisse.',
       paragraphTwo: 'Wir arbeiten mit Unternehmen und Marken an einem unverwechselbaren digitalen Auftritt – von der ersten Website-Zeile bis zum letzten Produktdetail.',
-      founder: 'Imran Chetouane', role: 'Gründer & Creative Director · The Lone Don', imageLabel: '3D-Kunstwerk',
+      founder: 'Imran Chetouan', role: 'Gründer & Creative Director · The Lone Don', imageLabel: '3D-Kunstwerk',
     },
     process: {
       eyebrow: 'Unser Ablauf / 05', first: 'Ein klarer Weg.', second: 'Ein Ergebnis mit Sinn.',

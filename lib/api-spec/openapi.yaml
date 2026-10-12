@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: newsletter
+    description: Email ownership verification for client perks
 paths:
   /healthz:
     get:
@@ -24,6 +26,78 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /newsletter/otp:
+    post:
+      operationId: sendNewsletterOtp
+      tags: [newsletter]
+      summary: Send a six-digit verification code to a Gmail address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpEmailInput"
+      responses:
+        "202":
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpChallenge"
+        "400":
+          description: Invalid email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpError"
+        "429":
+          description: Sending limit reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpError"
+        "502":
+          description: Gmail could not deliver the message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpError"
+        "503":
+          description: Gmail is not connected or is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpError"
+  /newsletter/verify:
+    post:
+      operationId: verifyNewsletterOtp
+      tags: [newsletter]
+      summary: Verify the six-digit email code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpCodeInput"
+      responses:
+        "200":
+          description: Code verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpVerification"
+        "400":
+          description: Code is invalid or expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpError"
+        "429":
+          description: Too many incorrect code attempts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpError"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +107,54 @@ components:
           type: string
       required:
         - status
+    OtpEmailInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+      required:
+        - email
+    OtpCodeInput:
+      type: object
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        code:
+          type: string
+          pattern: "^[0-9]{6}$"
+      required:
+        - challengeId
+        - code
+    OtpChallenge:
+      type: object
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        expiresInSeconds:
+          type: integer
+          minimum: 1
+      required:
+        - challengeId
+        - expiresInSeconds
+    OtpVerification:
+      type: object
+      properties:
+        verified:
+          type: boolean
+      required:
+        - verified
+    OtpError:
+      type: object
+      properties:
+        code:
+          type: string
+        error:
+          type: string
+      required:
+        - code
+        - error
 

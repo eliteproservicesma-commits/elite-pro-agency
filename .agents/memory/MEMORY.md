@@ -1,0 +1,1 @@
+- [Assistant and OTP constraints](elite-pro-email-and-assistant.md) — keep chat rule-based in the browser; send real codes only through Gmail OAuth, never paid API keys.
