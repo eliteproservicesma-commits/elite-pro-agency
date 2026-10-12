@@ -1,0 +1,51 @@
+Act as a world-class principal frontend & full-stack developer. Execute the following complete suite of updates, layout refinements, interactive tools, and deployment fixes to make "Elite Pro Services" a production-ready, Awwwards-grade platform:
+
+1. VERCEL DEPLOYMENT & SPA ROUTING FIX:
+- Create a `vercel.json` file in the root directory (and inside artifacts/elite-pro-services/ if applicable) with clean SPA rewrites:
+  { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+- Update `vite.config.ts` so `base` is safely set to './' or '/' ensuring clean asset paths and preventing white screens on Vercel deployment.
+- Ensure the build script generates output cleanly into `dist`.
+
+2. INTERACTIVE COST & TIMELINE CALCULATOR (MAD CURRENCY):
+- Build a sleek, interactive "Project Cost & Timeline Estimator" component.
+- Allow clients to select project type (Web App, E-Commerce, Mobile App, 3D Experience, Branding/SEO), choose custom feature add-ons, and instantly calculate the estimated cost in Moroccan Dirham (MAD) alongside estimated delivery weeks.
+- Add a direct CTA button: "إرسال التقدير إلى واتساب" that pre-fills the calculated items and total MAD price into a WhatsApp message directly to +212722016229.
+
+3. REALISTIC FULL-COLOR PAYMENT CARDS (FOOTER INTEGRATION):
+- Render official, highly realistic full-color SVG/PNG badges for:
+  * Visa (Official Navy Blue & Gold accent / White card style)
+  * Mastercard (Official Red & Orange interlocking circles)
+  * PayPal (Official Double 'P' Dark & Light Blue branding)
+  * Apple Pay (Official Sleek Black/White Apple Pay badge)
+  * Google Pay (Official Four-Color Google G + Pay badge)
+- Present each payment method inside a realistic 3D-styled mini-card with subtle rounded borders, glowing hover effects, metallic reflection, and authentic brand colors in the footer.
+
+4. ICON ASSETS MAPPING & INTEGRATION (ALL 9 ICONS):
+Inject the 9 uploaded icons into their exact dedicated sections:
+- TRUST BADGES & GUARANTEES (Before Footer):
+  * Lock Icon -> "100% Security & Full Encryption" (الأمان والتشفير الكامل)
+  * Ascending Chart Icon -> "Proven Growth & High ROI" (نمو المبيعات والعائد على الاستثمار)
+  * Headset Icon -> "24/7 Direct Client Support" (دعم وتواصل مباشر 24/7)
+  * Gold Credit Card Icon -> "Flexible & Secure Payment Plans" (خطط دفع مرنة وآمنة)
+- SERVICES & FEATURES GRID:
+  * Orange Target Icon -> "Goal-Oriented Execution"
+  * Orange Laptop/Edit Icon -> "Seamless Content & Web Platform Management"
+  * Orange Search/Analytics Icon -> "SEO & Performance Analytics"
+  * Purple Framing Icon -> "Innovative UI/UX & Frame Design"
+  * Purple Screen/Pencil Icon -> "Custom App & Web Development"
+
+5. CLIENT PORTAL & LIVE MILESTONE TRACKER & AMBIENT UI SOUNDS:
+- Add a simulated Client Progress Tracker modal where users can enter a sample Project Code to view interactive milestones (Phase 1: Design -> Phase 2: Development -> Phase 3: Deployment).
+- Include subtle, optional micro-interaction UI sound effects with a toggle mute/unmute button in the top navigation bar.
+
+6. DARIJA & ENGLISH CLIENT-SIDE AI CHATBOT (NO PAID API KEYS):
+- Implement a clean, interactive, rule-based AI Assistant widget in the bottom-right corner operating strictly client-side.
+- Train its logic to respond smoothly in Moroccan Darija and English about "Elite Pro Services", project costs (in MAD), web/app/3D services, and Founder Imran Chetouan in Tangier.
+- Provide quick-reply buttons and a direct CTA to WhatsApp (+212722016229).
+
+7. REAL GMAIL OTP VERIFICATION & PORTFOLIO GRID:
+- Upgrade the Gmail OTP feature using a real mail connection (Resend / EmailJS frontend flow) so a real 6-digit OTP code is sent to the user's inbox without displaying mock codes on screen.
+- Maintain all 38+ uploaded image cards in the portfolio gallery with 3D Tilt hover, full-screen Lightbox, multi-language RTL support, and external Drive link (https://drive.google.com/drive/folders/1sQWOJKDH3xDaEO2dSw3IcrQ_Flxa-R1_).
+
+8. GIT COMMIT & AUTOMATIC PUSH:
+- Once all checks pass, commit these changes cleanly with the message "Final Awwwards-grade upgrades, Interactive Calculator, & Vercel deployment fix" and push directly to the connected GitHub repository.
