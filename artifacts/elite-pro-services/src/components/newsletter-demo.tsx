@@ -37,86 +37,86 @@ const ui: Record<Locale, {
 }> = {
   ar: {
     eyebrow: 'التحقق عبر Gmail / 03', first: 'مزايا للعملاء،', second: 'مباشرة بعد التحقق.',
-    description: 'أدخل عنوان Gmail لإرسال رمز من 6 أرقام إلى بريدك، ثم تحقّق للوصول إلى مزايا العملاء.',
-    email: 'عنوان Gmail', placeholder: 'name@gmail.com', submit: 'أرسل رمز التحقق',
-    deliveryNote: 'في الوضع التجريبي يظهر رمز الاختبار؛ وعند تفعيل البريد يصلك الرمز إلى Gmail.',
+    description: 'أدخل بريدك الإلكتروني لإرسال رمز من 6 أرقام، ثم تحقّق للوصول إلى مزايا العملاء.',
+    email: 'البريد الإلكتروني', placeholder: 'name@example.com', submit: 'أرسل رمز التحقق',
+    deliveryNote: 'في الوضع التجريبي يظهر رمز الاختبار؛ وعند تفعيل البريد يصلك الرمز إلى صندوق بريدك.',
     modalTitle: 'تحقق من بريدك', modalDescription: 'أرسلنا رمزاً إلى {email}. أدخله هنا خلال 10 دقائق.',
     sent: 'تم إرسال الرمز إلى بريدك.', codeLabel: 'رمز التحقق المكوّن من 6 أرقام',
     verify: 'تأكيد الرمز', close: 'إغلاق', resume: 'متابعة التحقق',
     resend: 'إعادة إرسال الرمز', resendIn: 'إعادة الإرسال خلال {seconds} ثانية',
     mockSent: 'وضع تجريبي — استخدم رمز الاختبار التالي.', mockCodeLabel: 'رمز الاختبار: {code}',
-    invalidEmail: 'أدخل عنوان Gmail صحيحاً ينتهي بـ @gmail.com.',
+    invalidEmail: 'أدخل عنوان بريد إلكتروني صالحاً.',
     invalidCode: 'الرمز غير صحيح. راجع الرسالة وحاول مرة أخرى.',
     expired: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.', rateLimited: 'طلبات كثيرة. انتظر قليلاً قبل المحاولة مجدداً.',
-    providerMissing: 'إرسال البريد غير متاح حالياً. يلزم ربط حساب Gmail للإرسال الحقيقي.',
+    providerMissing: 'إرسال البريد الإلكتروني غير متاح حالياً.',
     sendFailed: 'تعذّر إرسال الرمز. حاول مرة أخرى بعد قليل.',
     verified: 'تم التحقق من بريدك. مزايا العملاء متاحة الآن.',
   },
   en: {
     eyebrow: 'Gmail verification / 03', first: 'Client perks,', second: 'once your email is verified.',
-    description: 'Enter your Gmail address to receive a six-digit code, then verify it to unlock the client perks.',
-    email: 'Gmail address', placeholder: 'name@gmail.com', submit: 'Send verification code',
-    deliveryNote: 'Demo mode shows a test code; once email is enabled, codes arrive in your Gmail inbox.',
+    description: 'Enter your email address to receive a six-digit code, then verify it to unlock the client perks.',
+    email: 'Email address', placeholder: 'name@example.com', submit: 'Send verification code',
+    deliveryNote: 'Demo mode shows a test code; once email is configured, codes arrive in your inbox.',
     modalTitle: 'Check your inbox', modalDescription: 'We sent a code to {email}. Enter it within 10 minutes.',
     sent: 'A verification code was sent to your inbox.', codeLabel: '6-digit verification code',
     verify: 'Confirm code', close: 'Close', resume: 'Continue verification',
     resend: 'Send a new code', resendIn: 'Resend in {seconds}s',
     mockSent: 'Demo mode — use the test code below.', mockCodeLabel: 'Test code: {code}',
-    invalidEmail: 'Enter a valid Gmail address ending in @gmail.com.',
+    invalidEmail: 'Enter a valid email address.',
     invalidCode: 'That code is not correct. Check the email and try again.',
     expired: 'That code expired. Request a new one.', rateLimited: 'Too many requests. Wait a little before trying again.',
-    providerMissing: 'Email sending is unavailable until a Gmail account is connected.',
+    providerMissing: 'Email verification is temporarily unavailable.',
     sendFailed: 'We could not send the code. Please try again shortly.',
     verified: 'Your email is verified. Client perks are now unlocked.',
   },
   fr: {
     eyebrow: 'Vérification Gmail / 03', first: 'Des avantages clients,', second: 'après vérification.',
-    description: 'Saisissez votre adresse Gmail pour recevoir un code à six chiffres et accéder aux avantages clients.',
-    email: 'Adresse Gmail', placeholder: 'name@gmail.com', submit: 'Envoyer le code',
-    deliveryNote: 'Le mode démo affiche un code de test ; une fois l’envoi activé, le code arrive par Gmail.',
+    description: 'Saisissez votre adresse e-mail pour recevoir un code à six chiffres et accéder aux avantages clients.',
+    email: 'Adresse e-mail', placeholder: 'name@example.com', submit: 'Envoyer le code',
+    deliveryNote: 'Le mode démo affiche un code de test ; une fois l’envoi activé, le code arrive dans votre boîte mail.',
     modalTitle: 'Vérifiez votre boîte mail', modalDescription: 'Un code a été envoyé à {email}. Saisissez-le sous 10 minutes.',
     sent: 'Un code de vérification a été envoyé.', codeLabel: 'Code de vérification à six chiffres',
     verify: 'Confirmer le code', close: 'Fermer', resume: 'Continuer la vérification',
     resend: 'Renvoyer un code', resendIn: 'Renvoyer dans {seconds}s',
     mockSent: 'Mode démo — utilisez le code de test ci-dessous.', mockCodeLabel: 'Code de test : {code}',
-    invalidEmail: 'Saisissez une adresse Gmail valide se terminant par @gmail.com.',
+    invalidEmail: 'Saisissez une adresse e-mail valide.',
     invalidCode: 'Ce code est incorrect. Vérifiez le message et réessayez.',
     expired: 'Ce code a expiré. Demandez-en un nouveau.', rateLimited: 'Trop de demandes. Réessayez dans un instant.',
-    providerMissing: 'L’envoi est indisponible tant qu’un compte Gmail n’est pas connecté.',
+    providerMissing: 'La vérification par e-mail est temporairement indisponible.',
     sendFailed: 'Impossible d’envoyer le code. Réessayez dans un instant.',
     verified: 'Votre adresse est vérifiée. Vos avantages clients sont accessibles.',
   },
   es: {
     eyebrow: 'Verificación de Gmail / 03', first: 'Ventajas para clientes,', second: 'al verificar el correo.',
-    description: 'Introduce tu Gmail para recibir un código de seis dígitos y desbloquear las ventajas para clientes.',
-    email: 'Dirección de Gmail', placeholder: 'name@gmail.com', submit: 'Enviar código',
-    deliveryNote: 'El modo de prueba muestra un código de test; al activar el envío llegará a tu Gmail.',
+    description: 'Introduce tu correo para recibir un código de seis dígitos y desbloquear las ventajas para clientes.',
+    email: 'Correo electrónico', placeholder: 'name@example.com', submit: 'Enviar código',
+    deliveryNote: 'El modo de prueba muestra un código de test; al activar el envío llegará a tu bandeja de entrada.',
     modalTitle: 'Revisa tu bandeja de entrada', modalDescription: 'Enviamos un código a {email}. Introdúcelo en 10 minutos.',
     sent: 'Se ha enviado un código de verificación.', codeLabel: 'Código de verificación de 6 dígitos',
     verify: 'Confirmar código', close: 'Cerrar', resume: 'Continuar verificación',
     resend: 'Enviar un código nuevo', resendIn: 'Reenviar en {seconds}s',
     mockSent: 'Modo de prueba — usa el código de test siguiente.', mockCodeLabel: 'Código de prueba: {code}',
-    invalidEmail: 'Introduce una dirección válida que termine en @gmail.com.',
+    invalidEmail: 'Introduce una dirección de correo válida.',
     invalidCode: 'El código no es correcto. Revisa el correo e inténtalo de nuevo.',
     expired: 'El código ha caducado. Solicita uno nuevo.', rateLimited: 'Demasiadas solicitudes. Espera un poco y vuelve a intentarlo.',
-    providerMissing: 'El envío no está disponible hasta conectar una cuenta de Gmail.',
+    providerMissing: 'La verificación por correo no está disponible temporalmente.',
     sendFailed: 'No se pudo enviar el código. Inténtalo de nuevo pronto.',
     verified: 'Tu correo está verificado. Ya puedes acceder a las ventajas para clientes.',
   },
   de: {
     eyebrow: 'Gmail-Verifizierung / 03', first: 'Kundenvorteile,', second: 'sobald die E-Mail bestätigt ist.',
-    description: 'Geben Sie Ihre Gmail-Adresse ein. Sie erhalten einen sechsstelligen Code für den Zugang zu Kundenvorteilen.',
-    email: 'Gmail-Adresse', placeholder: 'name@gmail.com', submit: 'Bestätigungscode senden',
-    deliveryNote: 'Im Demo-Modus wird ein Testcode angezeigt; nach Aktivierung kommt er direkt per Gmail.',
+    description: 'Geben Sie Ihre E-Mail-Adresse ein. Sie erhalten einen sechsstelligen Code für den Zugang zu Kundenvorteilen.',
+    email: 'E-Mail-Adresse', placeholder: 'name@example.com', submit: 'Bestätigungscode senden',
+    deliveryNote: 'Im Demo-Modus wird ein Testcode angezeigt; nach Aktivierung kommt er direkt in Ihr Postfach.',
     modalTitle: 'Posteingang prüfen', modalDescription: 'Wir haben einen Code an {email} gesendet. Geben Sie ihn innerhalb von 10 Minuten ein.',
     sent: 'Ein Bestätigungscode wurde gesendet.', codeLabel: 'Sechsstelliger Bestätigungscode',
     verify: 'Code bestätigen', close: 'Schließen', resume: 'Verifizierung fortsetzen',
     resend: 'Neuen Code senden', resendIn: 'Erneut senden in {seconds}s',
     mockSent: 'Demo-Modus — verwenden Sie den Testcode unten.', mockCodeLabel: 'Testcode: {code}',
-    invalidEmail: 'Geben Sie eine gültige Gmail-Adresse mit @gmail.com ein.',
+    invalidEmail: 'Geben Sie eine gültige E-Mail-Adresse ein.',
     invalidCode: 'Der Code ist falsch. Prüfen Sie die E-Mail und versuchen Sie es erneut.',
     expired: 'Der Code ist abgelaufen. Fordern Sie einen neuen an.', rateLimited: 'Zu viele Anfragen. Bitte kurz warten und erneut versuchen.',
-    providerMissing: 'E-Mail-Versand ist erst nach dem Verbinden eines Gmail-Kontos verfügbar.',
+    providerMissing: 'Die E-Mail-Verifizierung ist vorübergehend nicht verfügbar.',
     sendFailed: 'Der Code konnte nicht gesendet werden. Versuchen Sie es später erneut.',
     verified: 'Ihre E-Mail ist bestätigt. Die Kundenvorteile sind jetzt freigeschaltet.',
   },
@@ -184,14 +184,16 @@ export function NewsletterDemo({ copy, locale }: NewsletterDemoProps) {
     const code = errorCode(issue);
     if (code === 'rate_limited' || code === 'attempt_limit' || code === 'resend_wait') return words.rateLimited;
     if (code === 'otp_expired') return words.expired;
-    if (code === 'invalid_code') return words.invalidCode;
-    return mode === 'send' ? words.sendFailed : words.invalidCode;
+  if (code === 'invalid_code') return words.invalidCode;
+  if (code === 'email_not_configured') return words.providerMissing;
+  return mode === 'send' ? words.sendFailed : words.invalidCode;
+
   };
 
   const sendCode = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
-    if (!/^[^\s@]+@gmail\.com$/i.test(normalizedEmail)) {
+    if (normalizedEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setError(words.invalidEmail);
       return;
     }

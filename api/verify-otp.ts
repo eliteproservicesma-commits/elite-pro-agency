@@ -1,29 +1,27 @@
-import {
-  getResendApiKey,
-  jsonResponse,
-  readChallengePayload,
-  verifySignature,
-  type EdgeRequest,
-  type EdgeResponse,
-} from './otp-web';
+import { readChallengePayload, verifySignature } from './otp-node';
+import { env } from 'node:process';
 
-export const config = { runtime: 'edge' };
-
+type ApiRequest = { method?: string; body: unknown };
+type ApiResponse = {
+  status: (statusCode: number) => ApiResponse;
+  json: (body: unknown) => void;
+};
 type ChallengePayload = { mode: 'email' | 'mock'; expiresAt: number; digest?: string };
 const testCode = '123456';
 
-export default async function handler(request: EdgeRequest): Promise<EdgeResponse> {
+function response(res: ApiResponse, status: number, body: unknown) {
+  return res.status(status).json(body);
+}
+
+export default async function handler(request: ApiRequest, res: ApiResponse): Promise<void> {
   if (request.method !== 'POST') {
-    return jsonResponse(405, { code: 'method_not_allowed', error: 'Use POST.' });
+    response(res, 405, { code: 'method_not_allowed', error: 'Use POST.' });
+    return;
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return jsonResponse(400, { code: 'invalid_request', error: 'A valid JSON request is required.' });
-  }
-
+  const body = typeof request.body === 'string'
+    ? (() => { try { return JSON.parse(request.body) as unknown; } catch { return null; } })()
+    : request.body;
   const challengeId = body && typeof body === 'object' && 'challengeId' in body && typeof body.challengeId === 'string'
     ? body.challengeId
     : '';
@@ -31,44 +29,56 @@ export default async function handler(request: EdgeRequest): Promise<EdgeRespons
     ? body.code
     : '';
   if (!/^\d{6}$/.test(code) || !challengeId || challengeId.length > 2048) {
-    return jsonResponse(400, { code: 'invalid_code', error: 'Enter the six-digit code.' });
+    response(res, 400, { code: 'invalid_code', error: 'Enter the six-digit code.' });
+    return;
   }
 
   const [encodedPayload, signature, ...extra] = challengeId.split('.');
   if (extra.length > 0 || !encodedPayload) {
-    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
+    response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+    return;
   }
 
   let challenge: ChallengePayload;
   try {
     challenge = readChallengePayload(encodedPayload) as ChallengePayload;
   } catch {
-    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
+    response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+    return;
   }
 
   if (!challenge || !Number.isFinite(challenge.expiresAt) || challenge.expiresAt <= Date.now()) {
-    return jsonResponse(400, { code: 'otp_expired', error: 'That verification code has expired.' });
+    response(res, 400, { code: 'otp_expired', error: 'That verification code has expired.' });
+    return;
   }
 
   if (challenge.mode === 'mock') {
-    if (signature !== undefined) {
-      return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
+    if (signature !== undefined || env.NODE_ENV === 'production') {
+      response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+      return;
     }
-    if (code !== testCode) return jsonResponse(400, { code: 'invalid_code', error: 'That code is not correct.' });
-    return jsonResponse(200, { verified: true });
+    if (code !== testCode) {
+      response(res, 400, { code: 'invalid_code', error: 'That code is not correct.' });
+      return;
+    }
+    response(res, 200, { verified: true });
+    return;
   }
 
-  const apiKey = getResendApiKey();
-  if (!apiKey || challenge.mode !== 'email' || !challenge.digest || !signature) {
-    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
+  const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
+  if (challenge.mode !== 'email' || !challenge.digest || !signature || !appPassword) {
+    response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+    return;
   }
 
-  if (!await verifySignature(encodedPayload, signature, apiKey)) {
-    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
+  if (!verifySignature(encodedPayload, signature, appPassword)) {
+    response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+    return;
   }
-  if (!await verifySignature(code, challenge.digest, apiKey)) {
-    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not correct.' });
+  if (!verifySignature(code, challenge.digest, appPassword)) {
+    response(res, 400, { code: 'invalid_code', error: 'That code is not correct.' });
+    return;
   }
 
-  return jsonResponse(200, { verified: true });
+  response(res, 200, { verified: true });
 }
