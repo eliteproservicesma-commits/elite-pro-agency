@@ -1,5 +1,21 @@
+import { Buffer } from 'node:buffer';
 import { createHmac, randomInt } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import process from 'node:process';
+
+type ResendRequestInit = {
+  method: 'POST';
+  headers: Record<string, string>;
+  body: string;
+};
+type ResendResponse = { ok: boolean };
+
+function resendFetch(url: string, init: ResendRequestInit): Promise<ResendResponse> {
+  const runtime = globalThis as typeof globalThis & {
+    fetch: (input: string, options: ResendRequestInit) => Promise<ResendResponse>;
+  };
+  return runtime.fetch(url, init);
+}
 
 type ApiRequest = IncomingMessage & { body?: unknown };
 type ApiResponse = ServerResponse & {
@@ -70,7 +86,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
 
   if (apiKey) {
     const digest = sign(code, apiKey);
-    const delivery = await fetch('https://api.resend.com/emails', {
+    const delivery = await resendFetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
