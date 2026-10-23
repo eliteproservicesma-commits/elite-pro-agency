@@ -10,7 +10,8 @@
   },
   "private": true,
   "dependencies": {
-    "@replit/connectors-sdk": "^0.4.3"
+    "@replit/connectors-sdk": "^0.4.3",
+    "nodemailer": "^10.2.1"
   },
   "devDependencies": {
     "@types/node": "^25.9.6",
