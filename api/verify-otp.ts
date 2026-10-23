@@ -1,5 +1,7 @@
+import { Buffer } from 'node:buffer';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import process from 'node:process';
 
 type ApiRequest = IncomingMessage & { body?: unknown };
 type ApiResponse = ServerResponse & {
