@@ -1,49 +1,29 @@
-import { Buffer } from 'node:buffer';
-import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import process from 'node:process';
+import {
+  getResendApiKey,
+  jsonResponse,
+  readChallengePayload,
+  verifySignature,
+  type EdgeRequest,
+  type EdgeResponse,
+} from './otp-web';
 
-type ApiRequest = IncomingMessage & { body?: unknown };
-type ApiResponse = ServerResponse & {
-  status: (statusCode: number) => ApiResponse;
-  json: (body: unknown) => void;
-};
+export const config = { runtime: 'edge' };
+
 type ChallengePayload = { mode: 'email' | 'mock'; expiresAt: number; digest?: string };
 const testCode = '123456';
 
-async function readBody(request: ApiRequest): Promise<unknown> {
-  if (request.body && typeof request.body === 'object') return request.body;
-  const chunks: Buffer[] = [];
-  for await (const chunk of request) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-  try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
-  } catch {
-    return null;
-  }
-}
-
-function sign(value: string, secret: string) {
-  return createHmac('sha256', secret).update(value).digest('base64url');
-}
-
-function safeEqual(left: string, right: string) {
-  const leftBuffer = Buffer.from(left);
-  const rightBuffer = Buffer.from(right);
-  return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
-}
-
-function json(response: ApiResponse, statusCode: number, body: unknown) {
-  response.setHeader('Cache-Control', 'no-store');
-  response.status(statusCode).json(body);
-}
-
-export default async function handler(request: ApiRequest, response: ApiResponse) {
+export default async function handler(request: EdgeRequest): Promise<EdgeResponse> {
   if (request.method !== 'POST') {
-    response.setHeader('Allow', 'POST');
-    return json(response, 405, { code: 'method_not_allowed', error: 'Use POST.' });
+    return jsonResponse(405, { code: 'method_not_allowed', error: 'Use POST.' });
   }
 
-  const body = await readBody(request);
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse(400, { code: 'invalid_request', error: 'A valid JSON request is required.' });
+  }
+
   const challengeId = body && typeof body === 'object' && 'challengeId' in body && typeof body.challengeId === 'string'
     ? body.challengeId
     : '';
@@ -51,41 +31,44 @@ export default async function handler(request: ApiRequest, response: ApiResponse
     ? body.code
     : '';
   if (!/^\d{6}$/.test(code) || !challengeId || challengeId.length > 2048) {
-    return json(response, 400, { code: 'invalid_code', error: 'Enter the six-digit code.' });
+    return jsonResponse(400, { code: 'invalid_code', error: 'Enter the six-digit code.' });
   }
 
-  const [encodedPayload, signature, extra] = challengeId.split('.');
-  if (extra !== undefined) {
-    return json(response, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+  const [encodedPayload, signature, ...extra] = challengeId.split('.');
+  if (extra.length > 0 || !encodedPayload) {
+    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
   }
 
   let challenge: ChallengePayload;
   try {
-    challenge = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8')) as ChallengePayload;
+    challenge = readChallengePayload(encodedPayload) as ChallengePayload;
   } catch {
-    return json(response, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
   }
 
   if (!challenge || !Number.isFinite(challenge.expiresAt) || challenge.expiresAt <= Date.now()) {
-    return json(response, 400, { code: 'otp_expired', error: 'That verification code has expired.' });
+    return jsonResponse(400, { code: 'otp_expired', error: 'That verification code has expired.' });
   }
 
   if (challenge.mode === 'mock') {
-    if (code !== testCode) return json(response, 400, { code: 'invalid_code', error: 'That code is not correct.' });
-    return json(response, 200, { verified: true });
+    if (signature !== undefined) {
+      return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
+    }
+    if (code !== testCode) return jsonResponse(400, { code: 'invalid_code', error: 'That code is not correct.' });
+    return jsonResponse(200, { verified: true });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = getResendApiKey();
   if (!apiKey || challenge.mode !== 'email' || !challenge.digest || !signature) {
-    return json(response, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
   }
 
-  if (!safeEqual(sign(encodedPayload, apiKey), signature)) {
-    return json(response, 400, { code: 'invalid_code', error: 'That code is not valid.' });
+  if (!await verifySignature(encodedPayload, signature, apiKey)) {
+    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not valid.' });
   }
-  if (!safeEqual(sign(code, apiKey), challenge.digest)) {
-    return json(response, 400, { code: 'invalid_code', error: 'That code is not correct.' });
+  if (!await verifySignature(code, challenge.digest, apiKey)) {
+    return jsonResponse(400, { code: 'invalid_code', error: 'That code is not correct.' });
   }
 
-  return json(response, 200, { verified: true });
+  return jsonResponse(200, { verified: true });
 }
