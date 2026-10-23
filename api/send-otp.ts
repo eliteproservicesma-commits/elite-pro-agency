@@ -1,88 +1,110 @@
-import {
-  getResendApiKey,
-  jsonResponse,
-  makeChallenge,
-  randomOtp,
-  sendResendEmail,
-  signValue,
-  type EdgeRequest,
-  type EdgeResponse,
-} from './otp-web';
+import { createTransport } from 'nodemailer';
+import { env } from 'node:process';
+import { makeChallenge, randomOtp, signValue } from './otp-node';
 
-export const config = { runtime: 'edge' };
-
+type ApiRequest = { method?: string; body: unknown };
+type ApiResponse = {
+  status: (statusCode: number) => ApiResponse;
+  json: (body: unknown) => void;
+};
 type ChallengePayload = { mode: 'email' | 'mock'; expiresAt: number; digest?: string };
 type SendWindow = { sentAt: number[] };
 
 const challengeLifetimeMs = 10 * 60 * 1000;
 const resendCooldownMs = 60 * 1000;
 const hourlyLimit = 3;
+const mockCode = '123456';
 const sendWindows = new Map<string, SendWindow>();
 
-export default async function handler(request: EdgeRequest): Promise<EdgeResponse> {
+function response(res: ApiResponse, status: number, body: unknown) {
+  return res.status(status).json(body);
+}
+
+export default async function handler(request: ApiRequest, res: ApiResponse): Promise<void> {
   if (request.method !== 'POST') {
-    return jsonResponse(405, { code: 'method_not_allowed', error: 'Use POST.' });
+    response(res, 405, { code: 'method_not_allowed', error: 'Use POST.' });
+    return;
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return jsonResponse(400, { code: 'invalid_request', error: 'A valid JSON request is required.' });
-  }
-
+  const body = typeof request.body === 'string'
+    ? (() => { try { return JSON.parse(request.body) as unknown; } catch { return null; } })()
+    : request.body;
   const email = body && typeof body === 'object' && 'email' in body && typeof body.email === 'string'
     ? body.email.trim().toLowerCase()
     : '';
-  if (!/^[^\s@]+@gmail\.com$/i.test(email)) {
-    return jsonResponse(400, { code: 'invalid_email', error: 'Enter a valid Gmail address.' });
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    response(res, 400, { code: 'invalid_email', error: 'Enter a valid email address.' });
+    return;
+  }
+
+  const gmailUser = env.GMAIL_USER?.trim();
+  const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
+  const isProduction = env.NODE_ENV === 'production';
+  if ((!gmailUser || !appPassword) && isProduction) {
+    response(res, 503, {
+      code: 'email_not_configured',
+      error: 'Email verification is temporarily unavailable. Please try again later.',
+    });
+    return;
   }
 
   const now = Date.now();
   const window = sendWindows.get(email) ?? { sentAt: [] };
   window.sentAt = window.sentAt.filter((sentAt) => now - sentAt < 60 * 60 * 1000);
   if (window.sentAt.length && now - window.sentAt[window.sentAt.length - 1] < resendCooldownMs) {
-    return jsonResponse(429, { code: 'resend_wait', error: 'Please wait before requesting another code.' });
+    response(res, 429, { code: 'resend_wait', error: 'Please wait before requesting another code.' });
+    return;
   }
   if (window.sentAt.length >= hourlyLimit) {
-    return jsonResponse(429, { code: 'rate_limited', error: 'Too many requests. Try again later.' });
+    response(res, 429, { code: 'rate_limited', error: 'Too many requests. Try again later.' });
+    return;
   }
 
-  const apiKey = getResendApiKey();
-  const code = apiKey ? randomOtp() : '123456';
+  const code = gmailUser && appPassword ? randomOtp() : mockCode;
   const expiresAt = now + challengeLifetimeMs;
   let challengeId: string;
+  let mode: 'email' | 'mock';
 
-  if (apiKey) {
+  if (gmailUser && appPassword) {
     try {
-      const delivery = await sendResendEmail(apiKey, email, code);
-      if (!delivery.ok) {
-        return jsonResponse(502, {
-          code: 'email_delivery_failed',
-          error: 'The verification email could not be sent. Please try again later.',
-        });
-      }
+      const transporter = createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: { user: gmailUser, pass: appPassword },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 15_000,
+      });
+      await transporter.sendMail({
+        from: { name: 'Elite Pro Services', address: gmailUser },
+        to: email,
+        subject: 'Your Elite Pro Services verification code',
+        text: `Your verification code is ${code}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
+        html: `<div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6"><h2>Verify your email</h2><p>Your Elite Pro Services verification code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
+      });
     } catch {
-      return jsonResponse(502, {
+      response(res, 502, {
         code: 'email_delivery_failed',
         error: 'The verification email could not be sent. Please try again later.',
       });
+      return;
     }
 
-    const digest = await signValue(code, apiKey);
-    const payload: ChallengePayload = { mode: 'email', expiresAt, digest };
-    challengeId = await makeChallenge(payload, apiKey);
+    const digest = signValue(code, appPassword);
+    challengeId = makeChallenge({ mode: 'email', expiresAt, digest } satisfies ChallengePayload, appPassword);
+    mode = 'email';
   } else {
-    const payload: ChallengePayload = { mode: 'mock', expiresAt };
-    challengeId = await makeChallenge(payload);
+    challengeId = makeChallenge({ mode: 'mock', expiresAt } satisfies ChallengePayload);
+    mode = 'mock';
   }
 
   window.sentAt.push(now);
   sendWindows.set(email, window);
-  return jsonResponse(200, {
+  response(res, 200, {
     challengeId,
     expiresInSeconds: Math.floor(challengeLifetimeMs / 1000),
-    mode: apiKey ? 'email' : 'mock',
-    ...(apiKey ? {} : { mockCode: code }),
+    mode,
+    ...(mode === 'mock' ? { mockCode: code } : {}),
   });
 }

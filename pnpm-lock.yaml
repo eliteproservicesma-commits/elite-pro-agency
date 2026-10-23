@@ -168,6 +168,9 @@ importers:
       '@types/node':
         specifier: ^25.9.6
         version: 25.9.6
+      '@types/nodemailer':
+        specifier: ^8.0.2
+        version: 8.0.2
       prettier:
         specifier: ^3.9.6
         version: 3.9.6
@@ -1679,6 +1682,9 @@ packages:
 
   '@types/node@25.9.6':
     resolution: {integrity: sha512-JR6Q/PV5DKFvjrGFVqQJdeG0qvsqQQLDa3TzFrqVwhqRXqwNaxPo2KYCtCQXpOdIulCouKwT7a6in9nFthBAzw==}
+
+  '@types/nodemailer@8.0.2':
+    resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
 
   '@types/pg@8.23.1':
     resolution: {integrity: sha512-fKVHpikPdg4GKks3JuLEhvwSyvwzF23hnabPy6DD8ljVbC7+6J5dQzdv4arV6jqq57djnMgs1HKBxX4P8aBI3A==}
@@ -4315,6 +4321,10 @@ snapshots:
   '@types/node@25.9.6':
     dependencies:
       undici-types: 7.24.6
+
+  '@types/nodemailer@8.0.2':
+    dependencies:
+      '@types/node': 25.9.6
 
   '@types/pg@8.23.1':
     dependencies:
