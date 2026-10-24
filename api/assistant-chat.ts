@@ -106,9 +106,9 @@ export default async function handler(
     },
   });
 
+  response.setHeader("Cache-Control", "no-store");
   await pipeTextStreamToResponse({
     response,
     stream: toTextStream({ stream: result.stream }),
-    headers: { "Cache-Control": "no-store" },
   });
 }
