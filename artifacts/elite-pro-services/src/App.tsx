@@ -27,7 +27,6 @@ import { TrustGuarantees } from '@/components/trust-guarantees';
 import { PaymentCards } from '@/components/payment-cards';
 import { FloatingAssistant } from '@/components/floating-assistant';
 import { ProjectEstimator } from '@/components/project-estimator';
-import { ClientProgressTracker } from '@/components/client-progress-tracker';
 import { SoundToggle } from '@/components/sound-toggle';
 import { localeOptions, translations, type Locale } from '@/data/translations';
 import {
@@ -39,6 +38,9 @@ import {
 
 const queryClient = new QueryClient();
 const profileQueryKey = ['client-profile'];
+const signInLabels: Record<Locale, string> = {
+  ar: 'تسجيل الدخول', en: 'Sign in', fr: 'Se connecter', es: 'Iniciar sesión', de: 'Anmelden',
+};
 const configuredApiOrigin = import.meta.env.VITE_API_BASE_URL?.trim();
 if (configuredApiOrigin) setBaseUrl(configuredApiOrigin);
 
@@ -118,11 +120,19 @@ function Home() {
             <a href="#work">{copy.nav.work}</a>
             <a href="#studio">{copy.nav.studio}</a>
           </nav>
-          {profile ? (
-            <div className="desktop-portal"><ClientProfileMenu profile={profile} locale={locale} onSignedOut={onSignedOut} /></div>
-          ) : (
-            <ClientProgressTracker locale={locale} className="desktop-portal" />
-          )}
+          <div className="nav-portal">
+            {profile ? (
+              <ClientProfileMenu profile={profile} locale={locale} perks={copy.newsletter.perks} onSignedOut={onSignedOut} />
+            ) : (
+              <button
+                className="portal-trigger login-trigger"
+                type="button"
+                onClick={() => document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+              >
+                {signInLabels[locale]}
+              </button>
+            )}
+          </div>
           <label className="language-picker">
             <span className="sr-only">{copy.language}</span>
             <select id="language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
@@ -140,11 +150,6 @@ function Home() {
             <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
             <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
             <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
-            {profile ? (
-              <div className="mobile-portal"><ClientProfileMenu profile={profile} locale={locale} onSignedOut={onSignedOut} /></div>
-            ) : (
-              <ClientProgressTracker locale={locale} className="mobile-portal" />
-            )}
           </nav>
         </div>
       </header>
@@ -203,13 +208,15 @@ function Home() {
       </section>
 
       <PortfolioGallery copy={copy} />
-      <NewsletterDemo
-        copy={copy}
-        locale={locale}
-        profile={profile}
-        isProfileLoading={profileQuery.isLoading}
-        onVerified={onVerified}
-      />
+      {!profile && !profileQuery.isLoading && (
+        <NewsletterDemo
+          copy={copy}
+          locale={locale}
+          profile={null}
+          isProfileLoading={false}
+          onVerified={onVerified}
+        />
+      )}
 
       <section className="section wrap" id="studio">
         <div className="studio">
