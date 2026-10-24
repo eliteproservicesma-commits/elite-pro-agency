@@ -52,7 +52,23 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [activePanel, setActivePanel] = useState<'account' | 'perks' | null>(null);
   const [error, setError] = useState('');
+  const [menuPosition, setMenuPosition] = useState({ left: 16, top: 64 });
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const updateMenuPosition = () => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const bounds = trigger.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const menuWidth = Math.min(320, viewportWidth - 32);
+    const isRtl = document.documentElement.dir === 'rtl';
+    const preferredLeft = isRtl ? bounds.left : bounds.right - menuWidth;
+    const left = Math.max(16, Math.min(preferredLeft, viewportWidth - menuWidth - 16));
+    const top = Math.min(bounds.bottom + 12, window.innerHeight - 80);
+    setMenuPosition({ left, top: Math.max(8, top) });
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -62,11 +78,16 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') setIsOpen(false);
     };
+    updateMenuPosition();
     window.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', updateMenuPosition);
+    window.addEventListener('scroll', updateMenuPosition, true);
     return () => {
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', updateMenuPosition);
+      window.removeEventListener('scroll', updateMenuPosition, true);
     };
   }, [isOpen]);
 
@@ -93,6 +114,7 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
   return (
     <div className="client-profile" ref={rootRef}>
       <button
+        ref={triggerRef}
         className="client-profile-trigger"
         type="button"
         aria-expanded={isOpen}
@@ -107,7 +129,12 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
 
       </button>
       {isOpen && (
-        <section id="client-profile-menu" className="client-profile-menu" aria-label={copy.account}>
+        <section
+          id="client-profile-menu"
+          className="client-profile-menu"
+          aria-label={copy.account}
+          style={{ left: `${menuPosition.left}px`, top: `${menuPosition.top}px` }}
+        >
           <div className="client-profile-summary">
             <span className="client-avatar client-avatar-large" aria-hidden="true">
               {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" /> : <span>{initials(profile.fullName)}</span>}
