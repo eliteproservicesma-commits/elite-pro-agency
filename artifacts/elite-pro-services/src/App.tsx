@@ -120,30 +120,32 @@ function Home() {
             <a href="#work">{copy.nav.work}</a>
             <a href="#studio">{copy.nav.studio}</a>
           </nav>
-          <div className="nav-portal">
-            {profile ? (
-              <ClientProfileMenu profile={profile} locale={locale} perks={copy.newsletter.perks} onSignedOut={onSignedOut} />
-            ) : (
-              <button
-                className="portal-trigger login-trigger"
-                type="button"
-                onClick={() => document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-              >
-                {signInLabels[locale]}
-              </button>
-            )}
+          <div className="nav-actions">
+            <label className="language-picker">
+              <span className="sr-only">{copy.language}</span>
+              <select id="language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
+                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            <SoundToggle locale={locale} />
+            <a className="nav-contact" href="#contact">{copy.nav.start} <ArrowLeft size={14} /></a>
+            <div className="nav-portal">
+              {profile ? (
+                <ClientProfileMenu profile={profile} locale={locale} perks={copy.newsletter.perks} onSignedOut={onSignedOut} />
+              ) : (
+                <button
+                  className="portal-trigger login-trigger"
+                  type="button"
+                  onClick={() => document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                >
+                  {signInLabels[locale]}
+                </button>
+              )}
+            </div>
+            <button className="menu-toggle" type="button" aria-label={menuOpen ? copy.nav.closeMenu : copy.nav.openMenu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)} data-testid="button-menu-toggle">
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
-          <label className="language-picker">
-            <span className="sr-only">{copy.language}</span>
-            <select id="language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
-              {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </label>
-          <SoundToggle locale={locale} />
-          <a className="nav-contact" href="#contact">{copy.nav.start} <ArrowLeft size={14} /></a>
-          <button className="menu-toggle" type="button" aria-label={menuOpen ? copy.nav.closeMenu : copy.nav.openMenu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)} data-testid="button-menu-toggle">
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
           <nav className={`mobile-menu ${menuOpen ? 'open' : ''}`} aria-label={copy.nav.contact}>
             <a href="#home" onClick={closeMenu}>{copy.nav.home}</a>
             <a href="#services" onClick={closeMenu}>{copy.nav.services}</a>

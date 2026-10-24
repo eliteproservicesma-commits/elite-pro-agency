@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, BadgeCheck, ChevronDown, CircleUserRound, Languages, LogOut, Settings2 } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, CircleUserRound, Languages, LogOut, Settings2 } from 'lucide-react';
 import type { Locale } from '@/data/translations';
 
 export type ClientProfile = { email: string; fullName: string; verified: true; avatarUrl?: string };
@@ -104,8 +104,7 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
         <span className="client-avatar" aria-hidden="true">
           {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" /> : <span>{initials(profile.fullName)}</span>}
         </span>
-        <span className="client-profile-trigger-copy"><strong>{profile.fullName}</strong><small>{copy.verified}</small></span>
-        <ChevronDown size={14} aria-hidden="true" />
+
       </button>
       {isOpen && (
         <section id="client-profile-menu" className="client-profile-menu" aria-label={copy.account}>
