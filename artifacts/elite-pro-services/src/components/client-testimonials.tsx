@@ -1,9 +1,15 @@
+import { useState } from 'react';
 import { BadgeCheck, Star } from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { Locale } from '@/data/translations';
+
+type TestimonialCategory = 'ecommerce' | 'websites' | 'apps3d';
+type ReviewFilter = 'all' | TestimonialCategory;
 
 type Testimonial = {
   name: string;
   initials: string;
+  category: TestimonialCategory;
   role: Record<Locale, string>;
   quote: string;
 };
@@ -12,6 +18,7 @@ const testimonials: Testimonial[] = [
   {
     name: 'Karim Alami',
     initials: 'KA',
+    category: 'ecommerce',
     role: {
       ar: 'مؤسس متجر إلكتروني',
       en: 'E-Commerce Founder',
@@ -24,6 +31,7 @@ const testimonials: Testimonial[] = [
   {
     name: 'Sarah Benjelloun',
     initials: 'SB',
+    category: 'apps3d',
     role: {
       ar: 'مديرة التسويق',
       en: 'Marketing Director',
@@ -36,6 +44,7 @@ const testimonials: Testimonial[] = [
   {
     name: 'David Miller',
     initials: 'DM',
+    category: 'websites',
     role: {
       ar: 'مؤسس شركة تقنية ناشئة',
       en: 'Tech Startup Founder',
@@ -47,13 +56,16 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-const labels: Record<Locale, { eyebrow: string; title: string; description: string; verified: string; rating: string }> = {
+const labels: Record<Locale, { eyebrow: string; title: string; description: string; verified: string; rating: string; filterLabel: string; filters: Record<ReviewFilter, string>; results: (count: number) => string }> = {
   ar: {
     eyebrow: 'كلمات من عملائنا',
     title: 'آراء عملاء Elite Pro Services',
     description: 'تجارب يشاركها أصحاب المشاريع والفرق التي عملنا معها.',
     verified: 'مشروع موثّق',
     rating: 'خمس نجوم من أصل خمس',
+    filterLabel: 'تصفية التقييمات حسب نوع المشروع',
+    filters: { all: 'الكل', ecommerce: 'المتاجر الإلكترونية', websites: 'المواقع التعريفية', apps3d: 'التطبيقات و 3D' },
+    results: (count) => `${count} تقييمات`,
   },
   en: {
     eyebrow: 'A word from our clients',
@@ -61,6 +73,9 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     description: 'Experiences shared by the founders and teams behind the projects.',
     verified: 'Verified project',
     rating: 'Five out of five stars',
+    filterLabel: 'Filter reviews by project type',
+    filters: { all: 'All', ecommerce: 'E-Commerce', websites: 'Websites', apps3d: 'Apps & 3D' },
+    results: (count) => `${count} ${count === 1 ? 'review' : 'reviews'}`,
   },
   fr: {
     eyebrow: 'Leurs mots',
@@ -68,6 +83,9 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     description: 'Les expériences partagées par les fondateurs et les équipes avec qui nous avons travaillé.',
     verified: 'Projet vérifié',
     rating: 'Cinq étoiles sur cinq',
+    filterLabel: 'Filtrer les avis par type de projet',
+    filters: { all: 'Tous', ecommerce: 'E-commerce', websites: 'Sites web', apps3d: 'Apps et 3D' },
+    results: (count) => `${count} avis`,
   },
   es: {
     eyebrow: 'Sus palabras',
@@ -75,6 +93,9 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     description: 'Experiencias compartidas por los fundadores y equipos con quienes hemos colaborado.',
     verified: 'Proyecto verificado',
     rating: 'Cinco de cinco estrellas',
+    filterLabel: 'Filtrar opiniones por tipo de proyecto',
+    filters: { all: 'Todas', ecommerce: 'Comercio electrónico', websites: 'Sitios web', apps3d: 'Apps y 3D' },
+    results: (count) => `${count} opiniones`,
   },
   de: {
     eyebrow: 'Was unsere Kunden sagen',
@@ -82,11 +103,19 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     description: 'Erfahrungen von Gründerinnen, Gründern und Teams, mit denen wir gearbeitet haben.',
     verified: 'Verifiziertes Projekt',
     rating: 'Fünf von fünf Sternen',
+    filterLabel: 'Bewertungen nach Projekttyp filtern',
+    filters: { all: 'Alle', ecommerce: 'E-Commerce', websites: 'Websites', apps3d: 'Apps und 3D' },
+    results: (count) => `${count} Bewertungen`,
   },
 };
 
 export function ClientTestimonials({ locale }: { locale: Locale }) {
   const copy = labels[locale];
+  const [activeFilter, setActiveFilter] = useState<ReviewFilter>('all');
+  const visibleTestimonials = activeFilter === 'all'
+    ? testimonials
+    : testimonials.filter((testimonial) => testimonial.category === activeFilter);
+  const filterOptions: ReviewFilter[] = ['all', 'ecommerce', 'websites', 'apps3d'];
 
   return (
     <section className="reviews-section" id="reviews" aria-labelledby="reviews-heading" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
@@ -98,8 +127,26 @@ export function ClientTestimonials({ locale }: { locale: Locale }) {
           </div>
           <p className="reviews-intro">{copy.description}</p>
         </header>
-        <div className="reviews-grid" role="list" aria-label={copy.title}>
-          {testimonials.map((testimonial) => (
+        <div className="reviews-controls">
+          <ToggleGroup
+            type="single"
+            value={activeFilter}
+            onValueChange={(value) => { if (value) setActiveFilter(value as ReviewFilter); }}
+            variant="outline"
+            dir={locale === 'ar' ? 'rtl' : 'ltr'}
+            aria-label={copy.filterLabel}
+            className="reviews-filters"
+          >
+            {filterOptions.map((filter) => (
+              <ToggleGroupItem className="review-filter-button" key={filter} value={filter}>
+                {copy.filters[filter]}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <p className="reviews-count" aria-live="polite">{copy.results(visibleTestimonials.length)}</p>
+        </div>
+        <div className="reviews-grid" data-count={visibleTestimonials.length} role="list" aria-label={copy.title}>
+          {visibleTestimonials.map((testimonial) => (
             <article className="review-card" role="listitem" key={testimonial.name}>
               <div className="review-topline">
                 <span className="review-verified"><BadgeCheck size={15} aria-hidden="true" />{copy.verified}</span>
