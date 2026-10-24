@@ -922,7 +922,13 @@ body { max-width:100%; overflow-x:clip; margin:0; background:#10121a; }
 .client-account-details strong { overflow-wrap:anywhere; color:#e7e8e4; font-size:11px; font-weight:500; }
 .client-perks-list { display:grid; gap:9px; margin:4px 0 8px; padding-inline-start:20px; color:#c9cecf; font-size:11px; line-height:1.7; }
 @media (prefers-reduced-motion: reduce) { .client-profile-menu { animation:none; } }
-.client-profile-menu { position:fixed; z-index:1000; width:min(320px,calc(100vw - 32px)); max-height:calc(100dvh - 80px); overflow-y:auto; overscroll-behavior:contain; padding:16px; border:1px solid #41444d; color:#e6e8e5; background:#151720; box-shadow:0 22px 60px rgba(0,0,0,.48); }
+.client-profile-backdrop { position:fixed; inset:0; z-index:999; overflow:auto; background:rgba(8,9,13,.95); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); animation:profile-backdrop-enter .16s ease-out both; }
+@keyframes profile-backdrop-enter { from { opacity:0; } to { opacity:1; } }
+.client-profile-menu { position:absolute; z-index:1000; box-sizing:border-box; width:min(320px,calc(100vw - 32px)); max-height:min(420px,calc(100dvh - 32px)); overflow-y:auto; overscroll-behavior:contain; padding:48px 16px 16px; border:1px solid #41444d; color:#e6e8e5; background:rgba(15,16,22,.98); box-shadow:0 22px 60px rgba(0,0,0,.48); }
+.client-profile-close { position:absolute; inset-block-start:9px; inset-inline-end:9px; display:grid; place-items:center; width:34px; height:34px; border:1px solid #41444d; border-radius:50%; color:#e6e8e5; background:#20212a; cursor:pointer; }
+.client-profile-close:hover { border-color:#e9cc8d; color:#e9cc8d; }
+.client-profile-close:focus-visible { outline:2px solid #e9cc8d; outline-offset:3px; }
+@media (prefers-reduced-motion: reduce) { .client-profile-backdrop { animation:none; } }
 .client-profile-summary { display:flex; align-items:center; gap:11px; padding-bottom:14px; border-bottom:1px solid #343741; }
 .client-profile-identity { display:grid; min-width:0; gap:5px; }
 .client-profile-identity strong { overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
