@@ -121,11 +121,19 @@ const addOns: Record<Locale, { title: string; items: (EstimateOption & { label: 
 };
 
 const labels: Record<Locale, { estimate: string; min: string; weeks: string; cta: string; result: string }> = {
-  ar: { estimate: 'التقدير المبدئي', min: 'درهم مغربي', weeks: 'المدة المتوقعة', cta: 'إرسال التقدير إلى واتساب', result: 'ملخص التقدير' },
+  ar: { estimate: 'التقدير المبدئي', min: 'درهم مغربي', weeks: 'المدة المتوقعة', cta: 'إرسال التقدير واتساب', result: 'ملخص التقدير' },
   en: { estimate: 'Indicative estimate', min: 'MAD', weeks: 'Estimated timeline', cta: 'Send estimate to WhatsApp', result: 'Estimate summary' },
   fr: { estimate: 'Estimation indicative', min: 'MAD', weeks: 'Délai estimé', cta: 'Envoyer sur WhatsApp', result: 'Récapitulatif' },
   es: { estimate: 'Estimación orientativa', min: 'MAD', weeks: 'Plazo estimado', cta: 'Enviar por WhatsApp', result: 'Resumen de la estimación' },
   de: { estimate: 'Unverbindliche Schätzung', min: 'MAD', weeks: 'Geschätzter Zeitrahmen', cta: 'Per WhatsApp senden', result: 'Kostenschätzung' },
+};
+
+const whatsappCopy: Record<Locale, { intro: string; project: string; addOns: string; none: string; range: string; timeline: string; weeks: string }> = {
+  ar: { intro: 'السلام عليكم، أود مناقشة مشروع مع Elite Pro Services.', project: 'نوع المشروع', addOns: 'الإضافات', none: 'لا توجد', range: 'التقدير الأولي', timeline: 'المدة المتوقعة', weeks: 'أسابيع' },
+  en: { intro: 'Hello, I would like to discuss a project with Elite Pro Services.', project: 'Project type', addOns: 'Add-ons', none: 'None', range: 'Indicative estimate', timeline: 'Estimated timeline', weeks: 'weeks' },
+  fr: { intro: 'Bonjour, je souhaite discuter d’un projet avec Elite Pro Services.', project: 'Type de projet', addOns: 'Options', none: 'Aucune', range: 'Estimation indicative', timeline: 'Délai estimé', weeks: 'semaines' },
+  es: { intro: 'Hola, me gustaría hablar sobre un proyecto con Elite Pro Services.', project: 'Tipo de proyecto', addOns: 'Extras', none: 'Ninguno', range: 'Estimación orientativa', timeline: 'Plazo estimado', weeks: 'semanas' },
+  de: { intro: 'Hallo, ich möchte ein Projekt mit Elite Pro Services besprechen.', project: 'Projekttyp', addOns: 'Zusatzleistungen', none: 'Keine', range: 'Unverbindliche Schätzung', timeline: 'Geschätzter Zeitrahmen', weeks: 'Wochen' },
 };
 
 export function ProjectEstimator({ locale }: { locale: Locale }) {
@@ -146,9 +154,15 @@ export function ProjectEstimator({ locale }: { locale: Locale }) {
     };
   }, [chosenAddOns, chosenProject]);
   const format = (value: number) => new Intl.NumberFormat(locale === 'ar' ? 'ar-MA' : `${locale}-MA`, { maximumFractionDigits: 0 }).format(value);
-  const whatsappMessage = locale === 'ar'
-    ? `السلام عليكم، أود مناقشة مشروع مع Elite Pro Services.\nنوع المشروع: ${chosenProject.label}\nالإضافات: ${chosenAddOns.length ? chosenAddOns.map((item) => item.label).join('، ') : 'لا توجد'}\nالتقدير الأولي: ${estimate.min}–${estimate.max} MAD\nالمدة المتوقعة: ${estimate.weeksMin}–${estimate.weeksMax} أسابيع`
-    : `Hello, I would like to discuss a project with Elite Pro Services.\nProject type: ${chosenProject.label}\nAdd-ons: ${chosenAddOns.length ? chosenAddOns.map((item) => item.label).join(', ') : 'None'}\nIndicative estimate: ${estimate.min}–${estimate.max} MAD\nEstimated timeline: ${estimate.weeksMin}–${estimate.weeksMax} weeks`;
+  const messageCopy = whatsappCopy[locale];
+  const whatsappMessage = [
+    messageCopy.intro,
+    '',
+    `${messageCopy.project}: ${chosenProject.label}`,
+    `${messageCopy.addOns}: ${chosenAddOns.length ? chosenAddOns.map((item) => item.label).join(locale === 'ar' ? '، ' : ', ') : messageCopy.none}`,
+    `${messageCopy.range}: ${format(estimate.min)}–${format(estimate.max)} MAD`,
+    `${messageCopy.timeline}: ${estimate.weeksMin}–${estimate.weeksMax} ${messageCopy.weeks}`,
+  ].join('\n');
   const whatsappHref = `https://wa.me/212722016229?text=${encodeURIComponent(whatsappMessage)}`;
 
   const toggleAddOn = (key: string) => {
@@ -180,13 +194,13 @@ export function ProjectEstimator({ locale }: { locale: Locale }) {
       <div className="estimator-result" aria-live="polite">
         <div className="estimator-summary">
           <span>{words.estimate}</span>
-          <strong dir="ltr">{format(estimate.min)}–{format(estimate.max)} <small>{words.min}</small></strong>
+          <strong className="estimator-amount" dir="ltr">{format(estimate.min)}–{format(estimate.max)} <small>{words.min}</small></strong>
         </div>
         <div className="estimator-summary">
           <span>{words.weeks}</span>
           <strong dir="ltr">{estimate.weeksMin}–{estimate.weeksMax} <small>{locale === 'ar' ? 'أسابيع' : 'weeks'}</small></strong>
         </div>
-        <a className="estimator-whatsapp" href={whatsappHref} target="_blank" rel="noreferrer">
+        <a className="estimator-whatsapp" href={whatsappHref} target="_blank" rel="noopener noreferrer">
           {words.cta}<ArrowUpRight size={16} aria-hidden="true" />
         </a>
       </div>
