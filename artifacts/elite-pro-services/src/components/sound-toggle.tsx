@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import type { Locale } from '@/data/translations';
 
@@ -10,24 +10,19 @@ const labels: Record<Locale, { enable: string; disable: string }> = {
   de: { enable: 'Oberflächenklänge aktivieren', disable: 'Oberflächenklänge stummschalten' },
 };
 
-export function SoundToggle({ locale }: { locale: Locale }) {
-  const [enabled, setEnabled] = useState(() => {
-    try {
-      return window.localStorage.getItem('elite-pro-ui-sounds') === 'enabled';
-    } catch {
-      return false;
-    }
-  });
-
+export function SoundToggle({
+  locale,
+  enabled,
+  onEnabledChange,
+  playFeedback = true,
+}: {
+  locale: Locale;
+  enabled: boolean;
+  onEnabledChange: (enabled: boolean) => void;
+  playFeedback?: boolean;
+}) {
   useEffect(() => {
-    try {
-      window.localStorage.setItem('elite-pro-ui-sounds', enabled ? 'enabled' : 'muted');
-    } catch {
-      // Sound remains usable for the current session when storage is unavailable.
-    }
-  }, [enabled]);
-
-  useEffect(() => {
+    if (!playFeedback) return;
     if (!enabled) return;
     const playOnControlClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element) || !event.target.closest('button,a,[role="button"]')) return;
@@ -53,11 +48,11 @@ export function SoundToggle({ locale }: { locale: Locale }) {
     };
     document.addEventListener('click', playOnControlClick);
     return () => document.removeEventListener('click', playOnControlClick);
-  }, [enabled]);
+  }, [enabled, playFeedback]);
 
   const title = enabled ? labels[locale].disable : labels[locale].enable;
   return (
-    <button className="sound-toggle" type="button" aria-label={title} title={title} aria-pressed={enabled} onClick={() => setEnabled((value) => !value)}>
+    <button className="sound-toggle" type="button" aria-label={title} title={title} aria-pressed={enabled} onClick={() => onEnabledChange(!enabled)}>
       {enabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
     </button>
   );
