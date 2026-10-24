@@ -3,60 +3,35 @@ import { BadgeCheck, Star } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { Locale } from '@/data/translations';
 
-type TestimonialCategory = 'ecommerce' | 'websites' | 'apps3d';
+type TestimonialCategory = 'المتاجر الإلكترونية' | 'المواقع' | 'التطبيقات و 3D';
 type ReviewFilter = 'all' | TestimonialCategory;
 
 type Testimonial = {
   name: string;
   initials: string;
   category: TestimonialCategory;
-  role: Record<Locale, string>;
+  role: string;
   quote: string;
+  rating: number;
+  badge: string;
 };
 
 const testimonials: Testimonial[] = [
-  {
-    name: 'Karim Alami',
-    initials: 'KA',
-    category: 'ecommerce',
-    role: {
-      ar: 'مؤسس متجر إلكتروني',
-      en: 'E-Commerce Founder',
-      fr: 'Fondateur e-commerce',
-      es: 'Fundador de comercio electrónico',
-      de: 'E-Commerce-Gründer',
-    },
-    quote: 'تحول كامل فـ المتجر الإلكتروني ديالنا. الديزاين الأسود الفخم والسرعة فـ التحميل زادو نسبة المبيعات بـ 35% فـ أول شهر.',
-  },
-  {
-    name: 'Sarah Benjelloun',
-    initials: 'SB',
-    category: 'apps3d',
-    role: {
-      ar: 'مديرة التسويق',
-      en: 'Marketing Director',
-      fr: 'Directrice marketing',
-      es: 'Directora de marketing',
-      de: 'Marketingdirektorin',
-    },
-    quote: 'احترافية عالية فـ التعامل مع عمران وفريق Elite Pro Services. تطبيق الهواتف والواجهة 3D كانت كثر ملي توقعنا.',
-  },
-  {
-    name: 'David Miller',
-    initials: 'DM',
-    category: 'websites',
-    role: {
-      ar: 'مؤسس شركة تقنية ناشئة',
-      en: 'Tech Startup Founder',
-      fr: 'Fondateur d’une startup tech',
-      es: 'Fundador de una startup tecnológica',
-      de: 'Gründer eines Tech-Start-ups',
-    },
-    quote: 'Exceptional UI/UX quality and top-notch Vercel deployment. Highly recommended agency for serious brands.',
-  },
+  { name: 'Karim Alami', initials: 'KA', role: 'مؤسس متجر أزياء', category: 'المتاجر الإلكترونية', quote: 'سرعة خرافية فـ التصفح وتجاوب ممتاز مع الواتساب. تحسنات المبيعات بـ 40%.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'Yassine El Baqali', initials: 'YB', role: 'مدير وكالة عقارات طنجة', category: 'المواقع', quote: 'تصميم فخم وكود نقي بزاف. التعامل مع عمران وفريق Elite Pro كيزيد الثقة.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'Sarah Benjelloun', initials: 'SB', role: 'Directrice Marketing', category: 'التطبيقات و 3D', quote: 'Une expérience UI/UX exceptionnelle avec animations 3D fluid. Très recommandé!', rating: 5, badge: 'Verified Client 🇫🇷' },
+  { name: 'Mehdi Tazi', initials: 'MT', role: 'Owner - Auto School', category: 'المواقع', quote: 'خدمة احترافية وتجاوب سريع فـ التعديلات، السيت طلع سابق الوقت.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'Omar Al Mansoori', initials: 'OA', role: 'E-Com Director Dubai', category: 'المتاجر الإلكترونية', quote: 'Top-tier development and seamless execution. High ROI on our store.', rating: 5, badge: 'Verified UAE 🇦🇪' },
+  { name: 'أمين الحنصلي', initials: 'أح', role: 'مؤسس منصة تعليمية', category: 'التطبيقات و 3D', quote: 'الربط التفاعلي والتصميم الأسود الذهبي عطى هيبة كبيرة للمشروع.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'Sophie Laurent', initials: 'SL', role: 'Startup Founder Paris', category: 'المواقع', quote: 'Service impeccable, Vercel deployment rapide et design moderne.', rating: 5, badge: 'Verified Client 🇫🇷' },
+  { name: 'حمزة الوردي', initials: 'حو', role: 'صاحب مطعم طنجة', category: 'المتاجر الإلكترونية', quote: 'منيو إلكتروني سريع ونظام طلبات الواتساب سهل علينا الخدمة.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'David Miller', initials: 'DM', role: 'Tech Lead', category: 'التطبيقات و 3D', quote: 'Clean code, excellent performance, and zero layout bugs.', rating: 5, badge: 'Verified Client 🇺🇸' },
+  { name: 'هشام العمراني', initials: 'ها', role: 'مؤسس متجر إلكتروني', category: 'المتاجر الإلكترونية', quote: 'أحسن وكالة تعاملت معاها فـ المغرب، احترافية فـ المواعيد.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'سلمى الإدريسي', initials: 'سا', role: 'مصممة ديكور', category: 'المواقع', quote: 'معرض الأعمال طالع كيحمق والكليان كيعجبهم السيت بزاف.', rating: 5, badge: 'مشروع موثق 🇲🇦' },
+  { name: 'Alexandre Dubois', initials: 'AD', role: 'Founder Studio', category: 'التطبيقات و 3D', quote: 'Superbe rendu WebGL et animations fluide. Bravo à l’équipe Elite Pro.', rating: 5, badge: 'Verified Client 🇫🇷' },
 ];
 
-const labels: Record<Locale, { eyebrow: string; title: string; description: string; verified: string; rating: string; filterLabel: string; filters: Record<ReviewFilter, string>; results: (count: number) => string }> = {
+const labels: Record<Locale, { eyebrow: string; title: string; description: string; verified: string; rating: string; filterLabel: string; filters: Record<ReviewFilter, string>; results: (count: number) => string; more: string; less: string }> = {
   ar: {
     eyebrow: 'كلمات من عملائنا',
     title: 'آراء عملاء Elite Pro Services',
@@ -64,8 +39,10 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     verified: 'مشروع موثّق',
     rating: 'خمس نجوم من أصل خمس',
     filterLabel: 'تصفية التقييمات حسب نوع المشروع',
-    filters: { all: 'الكل', ecommerce: 'المتاجر الإلكترونية', websites: 'المواقع التعريفية', apps3d: 'التطبيقات و 3D' },
+    filters: { all: 'الكل', 'المتاجر الإلكترونية': 'المتاجر الإلكترونية', المواقع: 'المواقع', 'التطبيقات و 3D': 'التطبيقات و 3D' },
     results: (count) => `${count} تقييمات`,
+    more: 'عرض المزيد',
+    less: 'عرض أقل',
   },
   en: {
     eyebrow: 'A word from our clients',
@@ -74,8 +51,10 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     verified: 'Verified project',
     rating: 'Five out of five stars',
     filterLabel: 'Filter reviews by project type',
-    filters: { all: 'All', ecommerce: 'E-Commerce', websites: 'Websites', apps3d: 'Apps & 3D' },
+    filters: { all: 'All', 'المتاجر الإلكترونية': 'E-Commerce', المواقع: 'Websites', 'التطبيقات و 3D': 'Apps & 3D' },
     results: (count) => `${count} ${count === 1 ? 'review' : 'reviews'}`,
+    more: 'Show more',
+    less: 'Show less',
   },
   fr: {
     eyebrow: 'Leurs mots',
@@ -84,8 +63,10 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     verified: 'Projet vérifié',
     rating: 'Cinq étoiles sur cinq',
     filterLabel: 'Filtrer les avis par type de projet',
-    filters: { all: 'Tous', ecommerce: 'E-commerce', websites: 'Sites web', apps3d: 'Apps et 3D' },
+    filters: { all: 'Tous', 'المتاجر الإلكترونية': 'E-commerce', المواقع: 'Sites web', 'التطبيقات و 3D': 'Apps et 3D' },
     results: (count) => `${count} avis`,
+    more: 'Voir plus',
+    less: 'Voir moins',
   },
   es: {
     eyebrow: 'Sus palabras',
@@ -94,8 +75,10 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     verified: 'Proyecto verificado',
     rating: 'Cinco de cinco estrellas',
     filterLabel: 'Filtrar opiniones por tipo de proyecto',
-    filters: { all: 'Todas', ecommerce: 'Comercio electrónico', websites: 'Sitios web', apps3d: 'Apps y 3D' },
+    filters: { all: 'Todas', 'المتاجر الإلكترونية': 'Comercio electrónico', المواقع: 'Sitios web', 'التطبيقات و 3D': 'Apps y 3D' },
     results: (count) => `${count} opiniones`,
+    more: 'Ver más',
+    less: 'Ver menos',
   },
   de: {
     eyebrow: 'Was unsere Kunden sagen',
@@ -104,18 +87,22 @@ const labels: Record<Locale, { eyebrow: string; title: string; description: stri
     verified: 'Verifiziertes Projekt',
     rating: 'Fünf von fünf Sternen',
     filterLabel: 'Bewertungen nach Projekttyp filtern',
-    filters: { all: 'Alle', ecommerce: 'E-Commerce', websites: 'Websites', apps3d: 'Apps und 3D' },
+    filters: { all: 'Alle', 'المتاجر الإلكترونية': 'E-Commerce', المواقع: 'Websites', 'التطبيقات و 3D': 'Apps und 3D' },
     results: (count) => `${count} Bewertungen`,
+    more: 'Mehr anzeigen',
+    less: 'Weniger anzeigen',
   },
 };
 
 export function ClientTestimonials({ locale }: { locale: Locale }) {
   const copy = labels[locale];
   const [activeFilter, setActiveFilter] = useState<ReviewFilter>('all');
-  const visibleTestimonials = activeFilter === 'all'
+  const [showAll, setShowAll] = useState(false);
+  const filteredTestimonials = activeFilter === 'all'
     ? testimonials
     : testimonials.filter((testimonial) => testimonial.category === activeFilter);
-  const filterOptions: ReviewFilter[] = ['all', 'ecommerce', 'websites', 'apps3d'];
+  const visibleTestimonials = filteredTestimonials.slice(0, showAll ? filteredTestimonials.length : 6);
+  const filterOptions: ReviewFilter[] = ['all', 'المتاجر الإلكترونية', 'المواقع', 'التطبيقات و 3D'];
 
   return (
     <section className="reviews-section" id="reviews" aria-labelledby="reviews-heading" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
@@ -131,7 +118,12 @@ export function ClientTestimonials({ locale }: { locale: Locale }) {
           <ToggleGroup
             type="single"
             value={activeFilter}
-            onValueChange={(value) => { if (value) setActiveFilter(value as ReviewFilter); }}
+            onValueChange={(value) => {
+              if (value) {
+                setActiveFilter(value as ReviewFilter);
+                setShowAll(false);
+              }
+            }}
             variant="outline"
             dir={locale === 'ar' ? 'rtl' : 'ltr'}
             aria-label={copy.filterLabel}
@@ -145,14 +137,14 @@ export function ClientTestimonials({ locale }: { locale: Locale }) {
           </ToggleGroup>
           <p className="reviews-count" aria-live="polite">{copy.results(visibleTestimonials.length)}</p>
         </div>
-        <div className="reviews-grid" data-count={visibleTestimonials.length} role="list" aria-label={copy.title}>
+        <div id="reviews-grid" className="reviews-grid" data-count={visibleTestimonials.length} role="list" aria-label={copy.title}>
           {visibleTestimonials.map((testimonial) => (
             <article className="review-card" role="listitem" key={testimonial.name}>
               <div className="review-topline">
-                <span className="review-verified"><BadgeCheck size={15} aria-hidden="true" />{copy.verified}</span>
+                <span className="review-verified"><BadgeCheck size={15} aria-hidden="true" />{testimonial.badge}</span>
                 <span className="review-rating" role="img" aria-label={copy.rating}>
                   <span className="review-stars" aria-hidden="true">
-                    {Array.from({ length: 5 }, (_, index) => <Star key={index} size={14} fill="currentColor" />)}
+                    {Array.from({ length: testimonial.rating }, (_, index) => <Star key={index} size={14} fill="currentColor" />)}
                   </span>
                 </span>
               </div>
@@ -161,12 +153,23 @@ export function ClientTestimonials({ locale }: { locale: Locale }) {
                 <span className="review-avatar" aria-hidden="true">{testimonial.initials}</span>
                 <span className="review-client-copy">
                   <strong>{testimonial.name}</strong>
-                  <span>{testimonial.role[locale]}</span>
+                  <span>{testimonial.role}</span>
                 </span>
               </div>
             </article>
           ))}
         </div>
+        {filteredTestimonials.length > 6 && (
+          <button
+            className="reviews-more-button"
+            type="button"
+            aria-expanded={showAll}
+            aria-controls="reviews-grid"
+            onClick={() => setShowAll((expanded) => !expanded)}
+          >
+            {showAll ? copy.less : copy.more}
+          </button>
+        )}
       </div>
     </section>
   );

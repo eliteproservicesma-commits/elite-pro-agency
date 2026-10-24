@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, BadgeCheck, CircleUserRound, Languages, LogOut, Settings2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ArrowLeft, BadgeCheck, CircleUserRound, Languages, LogOut, Settings2, X } from 'lucide-react';
 import type { Locale } from '@/data/translations';
 
 export type ClientProfile = { email: string; fullName: string; verified: true; avatarUrl?: string };
@@ -13,32 +14,32 @@ type ClientProfileMenuProps = {
 
 const words: Record<Locale, {
   account: string; verified: string; tier: string; manage: string; perks: string; settings: string;
-  signOut: string; signingOut: string; signOutError: string; back: string; emailLabel: string;
+  signOut: string; signingOut: string; signOutError: string; back: string; emailLabel: string; close: string;
 }> = {
   ar: {
     account: 'حساب العميل', verified: 'بريد موثّق', tier: 'حساب مفعل - عميل مميز', manage: 'إدارة الحساب',
     perks: 'مزايا العملاء', settings: 'إعدادات اللغة', signOut: 'تسجيل الخروج', signingOut: 'جارٍ الخروج…',
-    signOutError: 'تعذر تسجيل الخروج. حاول مرة أخرى.', back: 'رجوع', emailLabel: 'البريد الإلكتروني',
+    signOutError: 'تعذر تسجيل الخروج. حاول مرة أخرى.', back: 'رجوع', emailLabel: 'البريد الإلكتروني', close: 'إغلاق',
   },
   en: {
     account: 'Client account', verified: 'Verified email', tier: 'Verified client', manage: 'Manage account',
     perks: 'Client perks', settings: 'Language settings', signOut: 'Sign out', signingOut: 'Signing out…',
-    signOutError: 'Sign out failed. Please try again.', back: 'Back', emailLabel: 'Email address',
+    signOutError: 'Sign out failed. Please try again.', back: 'Back', emailLabel: 'Email address', close: 'Close account menu',
   },
   fr: {
     account: 'Compte client', verified: 'E-mail vérifié', tier: 'Client vérifié', manage: 'Gérer le compte',
     perks: 'Avantages clients', settings: 'Langue', signOut: 'Se déconnecter', signingOut: 'Déconnexion…',
-    signOutError: 'La déconnexion a échoué. Réessayez.', back: 'Retour', emailLabel: 'Adresse e-mail',
+    signOutError: 'La déconnexion a échoué. Réessayez.', back: 'Retour', emailLabel: 'Adresse e-mail', close: 'Fermer le menu du compte',
   },
   es: {
     account: 'Cuenta de cliente', verified: 'Correo verificado', tier: 'Cliente verificado', manage: 'Gestionar cuenta',
     perks: 'Ventajas para clientes', settings: 'Idioma', signOut: 'Cerrar sesión', signingOut: 'Cerrando sesión…',
-    signOutError: 'No se pudo cerrar sesión. Inténtalo de nuevo.', back: 'Volver', emailLabel: 'Correo electrónico',
+    signOutError: 'No se pudo cerrar sesión. Inténtalo de nuevo.', back: 'Volver', emailLabel: 'Correo electrónico', close: 'Cerrar menú de cuenta',
   },
   de: {
     account: 'Kundenkonto', verified: 'E-Mail bestätigt', tier: 'Verifizierter Kunde', manage: 'Konto verwalten',
     perks: 'Kundenvorteile', settings: 'Spracheinstellungen', signOut: 'Abmelden', signingOut: 'Abmeldung…',
-    signOutError: 'Abmeldung fehlgeschlagen. Bitte erneut versuchen.', back: 'Zurück', emailLabel: 'E-Mail-Adresse',
+    signOutError: 'Abmeldung fehlgeschlagen. Bitte erneut versuchen.', back: 'Zurück', emailLabel: 'E-Mail-Adresse', close: 'Kontomenü schließen',
   },
 };
 
@@ -53,7 +54,8 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
   const [activePanel, setActivePanel] = useState<'account' | 'perks' | null>(null);
   const [error, setError] = useState('');
   const [menuPosition, setMenuPosition] = useState({ left: 16, top: 64 });
-  const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const updateMenuPosition = () => {
@@ -62,29 +64,34 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
 
     const bounds = trigger.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
     const menuWidth = Math.min(320, viewportWidth - 32);
+    const menuHeight = Math.min(420, viewportHeight - 32);
     const isRtl = document.documentElement.dir === 'rtl';
     const preferredLeft = isRtl ? bounds.left : bounds.right - menuWidth;
     const left = Math.max(16, Math.min(preferredLeft, viewportWidth - menuWidth - 16));
-    const top = Math.min(bounds.bottom + 12, window.innerHeight - 80);
-    setMenuPosition({ left, top: Math.max(8, top) });
+    const preferredTop = bounds.bottom + 12;
+    const top = Math.max(16, Math.min(preferredTop, viewportHeight - menuHeight - 16));
+    setMenuPosition({ left, top });
   };
 
   useEffect(() => {
     if (!isOpen) return;
-    const onPointerDown = (event: globalThis.PointerEvent) => {
-      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) setIsOpen(false);
-    };
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
-    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     updateMenuPosition();
-    window.addEventListener('pointerdown', onPointerDown);
+    closeButtonRef.current?.focus();
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', updateMenuPosition);
     window.addEventListener('scroll', updateMenuPosition, true);
     return () => {
-      window.removeEventListener('pointerdown', onPointerDown);
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', updateMenuPosition);
       window.removeEventListener('scroll', updateMenuPosition, true);
@@ -112,13 +119,13 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
   };
 
   return (
-    <div className="client-profile" ref={rootRef}>
+    <div className="client-profile">
       <button
         ref={triggerRef}
         className="client-profile-trigger"
         type="button"
         aria-expanded={isOpen}
-        aria-haspopup="true"
+        aria-haspopup="dialog"
         aria-controls="client-profile-menu"
         aria-label={`${copy.account}: ${profile.fullName}`}
         onClick={() => setIsOpen((open) => !open)}
@@ -128,13 +135,42 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
         </span>
 
       </button>
-      {isOpen && (
-        <section
-          id="client-profile-menu"
-          className="client-profile-menu"
-          aria-label={copy.account}
-          style={{ left: `${menuPosition.left}px`, top: `${menuPosition.top}px` }}
+      {isOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          className="client-profile-backdrop"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsOpen(false);
+              triggerRef.current?.focus();
+            }
+          }}
         >
+          <section
+            id="client-profile-menu"
+            ref={menuRef}
+            className="client-profile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label={copy.account}
+            style={{ left: `${menuPosition.left}px`, top: `${menuPosition.top}px` }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Tab') return;
+              const focusable = menuRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], select, [tabindex]:not([tabindex="-1"])');
+              if (!focusable?.length) return;
+              const first = focusable[0];
+              const last = focusable[focusable.length - 1];
+              if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+              } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+              }
+            }}
+          >
+            <button ref={closeButtonRef} className="client-profile-close" type="button" aria-label={copy.close} onClick={() => { setIsOpen(false); triggerRef.current?.focus(); }}>
+              <X size={17} aria-hidden="true" />
+            </button>
           <div className="client-profile-summary">
             <span className="client-avatar client-avatar-large" aria-hidden="true">
               {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" /> : <span>{initials(profile.fullName)}</span>}
@@ -167,7 +203,9 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
           <button className="client-signout" type="button" onClick={() => void signOut()} disabled={isSigningOut}>
             <LogOut size={15} aria-hidden="true" />{isSigningOut ? copy.signingOut : copy.signOut}
           </button>
-        </section>
+          </section>
+        </div>,
+        document.body,
       )}
     </div>
   );
