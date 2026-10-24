@@ -7,13 +7,12 @@ type ApiResponse = {
   status: (statusCode: number) => ApiResponse;
   json: (body: unknown) => void;
 };
-type ChallengePayload = { mode: 'email' | 'mock'; expiresAt: number; digest?: string };
+type ChallengePayload = { mode: 'email'; expiresAt: number; digest: string; email: string; fullName: string };
 type SendWindow = { sentAt: number[] };
 
 const challengeLifetimeMs = 10 * 60 * 1000;
 const resendCooldownMs = 60 * 1000;
 const hourlyLimit = 3;
-const mockCode = '123456';
 const sendWindows = new Map<string, SendWindow>();
 
 function response(res: ApiResponse, status: number, body: unknown) {
@@ -32,15 +31,21 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
   const email = body && typeof body === 'object' && 'email' in body && typeof body.email === 'string'
     ? body.email.trim().toLowerCase()
     : '';
+  const fullName = body && typeof body === 'object' && 'fullName' in body && typeof body.fullName === 'string'
+    ? body.fullName.trim().replace(/\s+/g, ' ')
+    : '';
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     response(res, 400, { code: 'invalid_email', error: 'Enter a valid email address.' });
+    return;
+  }
+  if (!fullName || fullName.length > 80 || /[\u0000-\u001f\u007f]/.test(fullName)) {
+    response(res, 400, { code: 'invalid_name', error: 'Enter a valid full name.' });
     return;
   }
 
   const gmailUser = env.GMAIL_USER?.trim();
   const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
-  const isProduction = env.NODE_ENV === 'production';
-  if ((!gmailUser || !appPassword) && isProduction) {
+  if (!gmailUser || !appPassword) {
     response(res, 503, {
       code: 'email_not_configured',
       error: 'Email verification is temporarily unavailable. Please try again later.',
@@ -60,14 +65,12 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  const code = gmailUser && appPassword ? randomOtp() : mockCode;
+  const code = randomOtp();
   const expiresAt = now + challengeLifetimeMs;
   let challengeId: string;
-  let mode: 'email' | 'mock';
 
-  if (gmailUser && appPassword) {
-    try {
-      const transporter = createTransport({
+  try {
+    const transporter = createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -76,14 +79,14 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
         greetingTimeout: 10_000,
         socketTimeout: 15_000,
       });
-      await transporter.sendMail({
+    await transporter.sendMail({
         from: { name: 'Elite Pro Services', address: gmailUser },
         to: email,
         subject: 'Your Elite Pro Services verification code',
         text: `Your verification code is ${code}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
         html: `<div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6"><h2>Verify your email</h2><p>Your Elite Pro Services verification code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
-      });
-    } catch {
+    });
+  } catch {
       response(res, 502, {
         code: 'email_delivery_failed',
         error: 'The verification email could not be sent. Please try again later.',
@@ -91,20 +94,14 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
       return;
     }
 
-    const digest = signValue(code, appPassword);
-    challengeId = makeChallenge({ mode: 'email', expiresAt, digest } satisfies ChallengePayload, appPassword);
-    mode = 'email';
-  } else {
-    challengeId = makeChallenge({ mode: 'mock', expiresAt } satisfies ChallengePayload);
-    mode = 'mock';
-  }
+  const digest = signValue(code, appPassword);
+  challengeId = makeChallenge({ mode: 'email', email, fullName, expiresAt, digest } satisfies ChallengePayload, appPassword);
 
   window.sentAt.push(now);
   sendWindows.set(email, window);
   response(res, 200, {
     challengeId,
     expiresInSeconds: Math.floor(challengeLifetimeMs / 1000),
-    mode,
-    ...(mode === 'mock' ? { mockCode: code } : {}),
+    mode: 'email',
   });
 }
