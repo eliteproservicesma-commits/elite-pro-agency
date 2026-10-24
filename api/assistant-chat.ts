@@ -1,7 +1,9 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-
-type ApiRequest = IncomingMessage & { body?: unknown };
-type ApiResponse = ServerResponse;
+type ApiRequest = { method?: string; body?: unknown };
+type ApiResponse = {
+  statusCode: number;
+  setHeader: (name: string, value: string) => void;
+  end: (body?: string) => void;
+};
 type ClientMessage = { role: 'user' | 'assistant'; content: string };
 type AssistantReply = { reply: string; whatsappUrl?: string };
 
@@ -94,7 +96,7 @@ function replyTo(query: string): AssistantReply {
   }
 
   if (has('ذكاء اصطناعي', 'الذكاء الاصطناعي', 'machine learning', 'artificial intelligence', 'ai ')) {
-    return { reply: 'الذكاء الاصطناعي مجال كيبني أنظمة كتتعلم الأنماط من البيانات أو كتتبع قواعد باش تنجز مهام بحال الترجمة، التصنيف، التوليد والتعرف على الصور. النتيجة كتختلف حسب البيانات والتصميم، وما خاصش نعتابروها صحيحة بلا تحقق فالمواضيع الحساسة.' };
+    return { reply: 'الذكاء الاصطناعي مجال كيبني أنظمة كتتعلم الأنماط من البيانات أو كتتبع قواعد باش تنجز مهام بحال الترجمة، التصنيف، التوليد والتعرف على الصور. النتيجة كتختلف حسب البيانات والتصميم، وما خاصش نعتابروها صحيحة بلا تحقق فالمواضيع الحسا��ة.' };
   }
 
   if (has('javascript', 'react', 'typescript', 'python', 'برمجة', 'كود', 'api', 'html', 'css', 'bug', 'خطأ برمجي')) {
