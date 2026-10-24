@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { MessageCircle, Send, Sparkles, X } from 'lucide-react';
 import type { Locale } from '@/data/translations';
 
-type ChatMessage = { id: number; sender: 'assistant' | 'user'; text: string };
+type ChatMessage = { id: number; sender: 'assistant' | 'user'; text: string; whatsappUrl?: string };
 
 const ui: Record<Locale, {
   title: string; subtitle: string; placeholder: string; send: string; close: string;
@@ -13,35 +13,35 @@ const ui: Record<Locale, {
     placeholder: 'اكتب سؤالك هنا…', send: 'إرسال', close: 'إغلاق المحادثة',
     whatsapp: 'تواصل عبر واتساب',
     quickReplies: ['شنو الخدمات اللي كتقدمو؟', 'شحال كيكلف المشروع؟', 'شكون هو المؤسس؟'],
-    requestError: 'وقع مشكل فالإجابة. عافاك حاول مرة أخرى.',
+    requestError: 'نقدر نعاونك مباشرة. وضّح ليا السؤال أكثر أو تواصل معنا عبر واتساب.',
   },
   en: {
     title: 'Elite Pro Assistant', subtitle: 'Darija & English · Tangier',
     placeholder: 'Ask about a project…', send: 'Send', close: 'Close chat',
     whatsapp: 'Talk on WhatsApp',
     quickReplies: ['What services do you offer?', 'How much does a project cost?', 'Who is the founder?'],
-    requestError: 'I could not generate a reply. Please try again.',
+    requestError: 'I can still help. Add a little more detail, or reach us on WhatsApp.'
   },
   fr: {
     title: 'Assistant Elite Pro', subtitle: 'Darija & anglais · Tanger',
     placeholder: 'Posez votre question…', send: 'Envoyer', close: 'Fermer le chat',
     whatsapp: 'Contacter sur WhatsApp',
     quickReplies: ['Quels services proposez-vous ?', 'Combien coûte un projet ?', 'Qui est le fondateur ?'],
-    requestError: 'Je n’ai pas pu générer de réponse. Veuillez réessayer.',
+    requestError: 'Je peux vous aider. Ajoutez un peu de contexte ou contactez-nous sur WhatsApp.'
   },
   es: {
     title: 'Asistente Elite Pro', subtitle: 'Darija e inglés · Tánger',
     placeholder: 'Escribe tu pregunta…', send: 'Enviar', close: 'Cerrar chat',
     whatsapp: 'Hablar por WhatsApp',
     quickReplies: ['¿Qué servicios ofrecen?', '¿Cuánto cuesta un proyecto?', '¿Quién es el fundador?'],
-    requestError: 'No pude generar una respuesta. Inténtalo de nuevo.',
+    requestError: 'Puedo ayudarte. Añade un poco de contexto o escríbenos por WhatsApp.'
   },
   de: {
     title: 'Elite Pro Assistent', subtitle: 'Darija & Englisch · Tanger',
     placeholder: 'Frage zu einem Projekt…', send: 'Senden', close: 'Chat schließen',
     whatsapp: 'Über WhatsApp schreiben',
     quickReplies: ['Welche Services bieten Sie an?', 'Was kostet ein Projekt?', 'Wer ist der Gründer?'],
-    requestError: 'Ich konnte keine Antwort erstellen. Bitte versuchen Sie es erneut.',
+    requestError: 'Ich helfe gern weiter. Ergänzen Sie etwas Kontext oder schreiben Sie uns über WhatsApp.'
   },
 };
 
@@ -101,23 +101,21 @@ export function FloatingAssistant({ locale }: { locale: Locale }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: conversation }),
       });
-      if (!response.ok || !response.body) throw new Error('Assistant request failed');
+      const result = await response.json().catch(() => null) as { reply?: unknown; whatsappUrl?: unknown } | null;
+      if (!response.ok || typeof result?.reply !== 'string') throw new Error('Assistant request failed');
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { value, done } = await reader.read();
-        if (value) answer += decoder.decode(value, { stream: !done });
-        if (done) break;
-        setMessages((current) => current.map((item) => (
-          item.id === responseMessage.id ? { ...item, text: answer } : item
-        )));
+      answer = result.reply.trim() || labels.requestError;
+      let whatsappUrl: string | undefined;
+      if (typeof result.whatsappUrl === 'string') {
+        try {
+          const candidate = new URL(result.whatsappUrl);
+          if (candidate.protocol === 'https:' && candidate.hostname === 'wa.me') whatsappUrl = candidate.href;
+        } catch {
+          whatsappUrl = undefined;
+        }
       }
-      answer += decoder.decode();
       setMessages((current) => current.map((item) => (
-        item.id === responseMessage.id
-          ? { ...item, text: answer || labels.requestError }
-          : item
+        item.id === responseMessage.id ? { ...item, text: answer, whatsappUrl } : item
       )));
     } catch {
       setMessages((current) => current.map((item) => (
@@ -155,9 +153,12 @@ export function FloatingAssistant({ locale }: { locale: Locale }) {
           </header>
           <div className="assistant-messages" aria-live="polite" aria-busy={isSending}>
             {messages.map((message) => (
-              <p className={`assistant-message assistant-message-${message.sender}${!message.text && isSending ? ' assistant-typing' : ''}`} dir={isArabic(message.text) ? 'rtl' : 'ltr'} key={message.id}>
-                {message.text || (isSending && message.sender === 'assistant' ? <><span /><span /><span /></> : null)}
-              </p>
+              <div className={`assistant-message-row assistant-message-row-${message.sender}`} key={message.id}>
+                <p className={`assistant-message assistant-message-${message.sender}${!message.text && isSending ? ' assistant-typing' : ''}`} dir={isArabic(message.text) ? 'rtl' : 'ltr'}>
+                  {message.text || (isSending && message.sender === 'assistant' ? <><span /><span /><span /></> : null)}
+                </p>
+                {message.whatsappUrl && <a className="assistant-message-action" href={message.whatsappUrl} target="_blank" rel="noreferrer">{labels.whatsapp}</a>}
+              </div>
             ))}
             <div ref={endRef} />
           </div>
@@ -172,7 +173,16 @@ export function FloatingAssistant({ locale }: { locale: Locale }) {
             <MessageCircle size={16} aria-hidden="true" />{labels.whatsapp}
           </a>
           <form className="assistant-composer" onSubmit={submit}>
-            <input value={input} onChange={(event) => setInput(event.target.value)} placeholder={labels.placeholder} aria-label={labels.placeholder} disabled={isSending} />
+            <input
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && (event.nativeEvent.isComposing || event.keyCode === 229)) event.preventDefault();
+              }}
+              placeholder={labels.placeholder}
+              aria-label={labels.placeholder}
+              disabled={isSending}
+            />
             <button type="submit" aria-label={labels.send} disabled={!input.trim() || isSending}><Send size={16} /></button>
           </form>
         </section>

@@ -1,13 +1,14 @@
-import { readChallengePayload, verifySignature } from './otp-node';
+import { makeChallenge, readChallengePayload, verifySignature } from './otp-node';
 import { env } from 'node:process';
 
 type ApiRequest = { method?: string; body: unknown };
 type ApiResponse = {
   status: (statusCode: number) => ApiResponse;
   json: (body: unknown) => void;
+  setHeader: (name: string, value: string) => void;
 };
-type ChallengePayload = { mode: 'email' | 'mock'; expiresAt: number; digest?: string };
-const testCode = '123456';
+type ChallengePayload = { mode: 'email'; expiresAt: number; digest: string; email: string; fullName: string };
+const sessionLifetimeSeconds = 60 * 60 * 24 * 30;
 
 function response(res: ApiResponse, status: number, body: unknown) {
   return res.status(status).json(body);
@@ -52,21 +53,8 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  if (challenge.mode === 'mock') {
-    if (signature !== undefined || env.NODE_ENV === 'production') {
-      response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
-      return;
-    }
-    if (code !== testCode) {
-      response(res, 400, { code: 'invalid_code', error: 'That code is not correct.' });
-      return;
-    }
-    response(res, 200, { verified: true });
-    return;
-  }
-
   const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
-  if (challenge.mode !== 'email' || !challenge.digest || !signature || !appPassword) {
+  if (challenge.mode !== 'email' || !challenge.digest || !challenge.email || !challenge.fullName || !signature || !appPassword) {
     response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
     return;
   }
@@ -80,5 +68,17 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  response(res, 200, { verified: true });
+  const sessionPayload = {
+    email: challenge.email,
+    fullName: challenge.fullName,
+    expiresAt: Date.now() + sessionLifetimeSeconds * 1000,
+  };
+  const sessionToken = makeChallenge(sessionPayload, appPassword);
+  const secure = env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `elitepro_session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${sessionLifetimeSeconds}${secure}`);
+  res.setHeader('Cache-Control', 'no-store');
+  response(res, 200, {
+    verified: true,
+    profile: { email: challenge.email, fullName: challenge.fullName, verified: true },
+  });
 }

@@ -1,5 +1,5 @@
 import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { setBaseUrl } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,6 +20,7 @@ import {
   X,
 } from 'lucide-react';
 import { NewsletterDemo } from '@/components/newsletter-demo';
+import { ClientProfileMenu, type ClientProfile } from '@/components/client-profile-menu';
 import { PortfolioGallery } from '@/components/portfolio-gallery';
 import { ServiceFeatures } from '@/components/service-features';
 import { TrustGuarantees } from '@/components/trust-guarantees';
@@ -37,10 +38,26 @@ import {
 } from 'wouter';
 
 const queryClient = new QueryClient();
+const profileQueryKey = ['client-profile'];
 const configuredApiOrigin = import.meta.env.VITE_API_BASE_URL?.trim();
 if (configuredApiOrigin) setBaseUrl(configuredApiOrigin);
 
 function Home() {
+  const profileQuery = useQuery<ClientProfile | null>({
+    queryKey: profileQueryKey,
+    queryFn: async () => {
+      const response = await fetch('/api/profile', { credentials: 'same-origin' });
+      if (response.status === 401) return null;
+      if (!response.ok) throw new Error('Unable to load client profile');
+      const result = await response.json() as { profile: ClientProfile | null };
+      return result.profile;
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+  const profile = profileQuery.data ?? null;
+  const onVerified = (verifiedProfile: ClientProfile) => queryClient.setQueryData(profileQueryKey, verifiedProfile);
+  const onSignedOut = () => queryClient.setQueryData(profileQueryKey, null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [selectedService, setSelectedService] = useState('');
@@ -101,10 +118,14 @@ function Home() {
             <a href="#work">{copy.nav.work}</a>
             <a href="#studio">{copy.nav.studio}</a>
           </nav>
-          <ClientProgressTracker locale={locale} className="desktop-portal" />
+          {profile ? (
+            <div className="desktop-portal"><ClientProfileMenu profile={profile} locale={locale} onSignedOut={onSignedOut} /></div>
+          ) : (
+            <ClientProgressTracker locale={locale} className="desktop-portal" />
+          )}
           <label className="language-picker">
             <span className="sr-only">{copy.language}</span>
-            <select aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
+            <select id="language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
               {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </label>
@@ -119,7 +140,11 @@ function Home() {
             <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
             <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
             <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
-            <ClientProgressTracker locale={locale} className="mobile-portal" />
+            {profile ? (
+              <div className="mobile-portal"><ClientProfileMenu profile={profile} locale={locale} onSignedOut={onSignedOut} /></div>
+            ) : (
+              <ClientProgressTracker locale={locale} className="mobile-portal" />
+            )}
           </nav>
         </div>
       </header>
@@ -178,7 +203,13 @@ function Home() {
       </section>
 
       <PortfolioGallery copy={copy} />
-      <NewsletterDemo copy={copy} locale={locale} />
+      <NewsletterDemo
+        copy={copy}
+        locale={locale}
+        profile={profile}
+        isProfileLoading={profileQuery.isLoading}
+        onVerified={onVerified}
+      />
 
       <section className="section wrap" id="studio">
         <div className="studio">
