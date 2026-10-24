@@ -64,6 +64,13 @@ function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [selectedService, setSelectedService] = useState('');
   const [locale, setLocale] = useState<Locale>('ar');
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try {
+      return window.localStorage.getItem('elite-pro-ui-sounds') === 'enabled';
+    } catch {
+      return false;
+    }
+  });
   const copy = translations[locale];
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
@@ -71,6 +78,14 @@ function Home() {
     document.documentElement.lang = locale;
     document.documentElement.dir = direction;
   }, [direction, locale]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('elite-pro-ui-sounds', soundEnabled ? 'enabled' : 'muted');
+    } catch {
+      // Sound preference remains available for this session when storage is unavailable.
+    }
+  }, [soundEnabled]);
 
   useEffect(() => {
     const sectionId = window.location.hash.slice(1);
@@ -121,13 +136,15 @@ function Home() {
             <a href="#studio">{copy.nav.studio}</a>
           </nav>
           <div className="nav-actions">
-            <label className="language-picker">
-              <span className="sr-only">{copy.language}</span>
-              <select id="language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
-                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
-            </label>
-            <SoundToggle locale={locale} />
+            <div className="nav-controls">
+              <label className="language-picker">
+                <span className="sr-only">{copy.language}</span>
+                <select id="language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)} data-testid="language-select">
+                  {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              <SoundToggle locale={locale} enabled={soundEnabled} onEnabledChange={setSoundEnabled} />
+            </div>
             <a className="nav-contact" href="#contact">{copy.nav.start} <ArrowLeft size={14} /></a>
             <div className="nav-portal">
               {profile ? (
@@ -152,6 +169,15 @@ function Home() {
             <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
             <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
             <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
+            <div className="mobile-menu-controls">
+              <label className="language-picker">
+                <span className="sr-only">{copy.language}</span>
+                <select id="mobile-language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)}>
+                  {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              <SoundToggle locale={locale} enabled={soundEnabled} onEnabledChange={setSoundEnabled} playFeedback={false} />
+            </div>
           </nav>
         </div>
       </header>
