@@ -166,24 +166,35 @@ function Home() {
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
-          <nav className={`mobile-menu ${menuOpen ? 'open' : ''}`} aria-label={copy.nav.contact}>
-            <a href="#home" onClick={closeMenu}>{copy.nav.home}</a>
-            <a href="#services" onClick={closeMenu}>{copy.nav.services}</a>
-            <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
-            <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
-            <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
-            <div className="mobile-menu-controls">
-              <label className="language-picker">
-                <span className="sr-only">{copy.language}</span>
-                <select id="mobile-language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)}>
-                  {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </label>
-              <SoundToggle locale={locale} enabled={soundEnabled} onEnabledChange={setSoundEnabled} playFeedback={false} />
-            </div>
-          </nav>
         </div>
       </header>
+      <nav
+        className={`mobile-menu ${menuOpen ? 'open' : ''}`}
+        aria-label={copy.nav.contact}
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
+      >
+        <div className="mobile-menu-header">
+          <a className="mobile-menu-brand" href="#home" onClick={closeMenu}>ELITE <b>PRO</b> SERVICES</a>
+          <button className="mobile-menu-close" type="button" aria-label={copy.nav.closeMenu} onClick={closeMenu}>
+            <X size={22} />
+          </button>
+        </div>
+        <a href="#home" onClick={closeMenu}>{copy.nav.home}</a>
+        <a href="#services" onClick={closeMenu}>{copy.nav.services}</a>
+        <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
+        <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
+        <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
+        <div className="mobile-menu-controls">
+          <label className="language-picker">
+            <span className="sr-only">{copy.language}</span>
+            <select id="mobile-language-select" aria-label={copy.language} value={locale} onChange={(event) => setLocale(event.target.value as Locale)}>
+              {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+          <SoundToggle locale={locale} enabled={soundEnabled} onEnabledChange={setSoundEnabled} playFeedback={false} />
+        </div>
+      </nav>
 
       <section className="hero" id="home">
         <div className="wrap hero-grid">
