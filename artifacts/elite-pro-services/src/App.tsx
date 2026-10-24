@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
+import { type FormEvent, type ReactNode, Suspense, lazy, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { setBaseUrl } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -37,6 +37,7 @@ import {
   Router as WouterRouter,
 } from 'wouter';
 
+const PlanetCanvas = lazy(() => import('@/components/planet-canvas'));
 const queryClient = new QueryClient();
 const profileQueryKey = ['client-profile'];
 const signInLabels: Record<Locale, string> = {
@@ -124,6 +125,7 @@ function Home() {
 
   return (
     <main className="site-shell" dir={direction} lang={locale}>
+      <div className="planet-canvas" aria-hidden="true"><Suspense fallback={null}><PlanetCanvas /></Suspense></div>
       <header className="topbar">
         <div className="nav-inner">
           <a href="#home" className="brand" aria-label={`Elite Pro Services — ${copy.nav.home}`}>
