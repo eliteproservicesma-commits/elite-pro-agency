@@ -22,6 +22,7 @@ import {
 import { NewsletterDemo } from '@/components/newsletter-demo';
 import { ClientProfileMenu, type ClientProfile } from '@/components/client-profile-menu';
 import { PortfolioGallery } from '@/components/portfolio-gallery';
+import { ClientTestimonials } from '@/components/client-testimonials';
 import { ServiceFeatures } from '@/components/service-features';
 import { TrustGuarantees } from '@/components/trust-guarantees';
 import { PaymentCards } from '@/components/payment-cards';
@@ -236,6 +237,7 @@ function Home() {
       </section>
 
       <PortfolioGallery copy={copy} />
+      <ClientTestimonials locale={locale} />
       {!profile && !profileQuery.isLoading && (
         <NewsletterDemo
           copy={copy}
