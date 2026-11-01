@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, LoaderCircle, X } from 'lucide-react';
 import { SiApple, SiGithub, SiGoogle } from 'react-icons/si';
 import type { Locale, SiteCopy } from '@/data/translations';
+import { getSupabaseClient } from '@/lib/supabase';
 import type { ClientProfile } from './client-profile-menu';
 
 type NewsletterDemoProps = {
@@ -11,18 +12,6 @@ type NewsletterDemoProps = {
   isProfileLoading: boolean;
   onVerified: (profile: ClientProfile) => void;
 };
-type OtpChallenge = { challengeId: string; expiresInSeconds: number; mode: 'email' };
-
-async function requestOtp<T>(url: string, payload: Record<string, string>): Promise<T> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw { data: result };
-  return result as T;
-}
 
 const ui: Record<Locale, {
   eyebrow: string; first: string; second: string; description: string; fullName: string; fullNamePlaceholder: string;
@@ -132,7 +121,6 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [enteredCode, setEnteredCode] = useState('');
-  const [challengeId, setChallengeId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -204,8 +192,11 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
     setEnteredCode('');
     setIsSending(true);
     try {
-      const challenge = await requestOtp<OtpChallenge>('/api/send-otp', { email: normalizedEmail, fullName: normalizedName });
-      setChallengeId(challenge.challengeId);
+      const { error: otpError } = await getSupabaseClient().auth.signInWithOtp({
+        email: normalizedEmail,
+        options: { shouldCreateUser: true, data: { full_name: normalizedName } },
+      });
+      if (otpError) throw otpError;
       setFullName(normalizedName);
       setEmail(normalizedEmail);
       setResendSeconds(60);
@@ -219,23 +210,38 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
 
   const verifyCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!challengeId || !/^\d{6}$/.test(enteredCode)) {
+    if (!/^\d{6}$/.test(enteredCode)) {
       setError(words.invalidCode);
       return;
     }
     setError('');
     setIsVerifying(true);
     try {
-      const result = await requestOtp<{ verified: boolean; profile: ClientProfile }>('/api/verify-otp', { challengeId, code: enteredCode });
-      if (!result.verified || !result.profile) throw { data: { code: 'invalid_code' } };
-      onVerified(result.profile);
-      setChallengeId(null);
+      const { data, error: verifyError } = await getSupabaseClient().auth.verifyOtp({ type: 'email', email, token: enteredCode });
+      if (verifyError || !data.user) throw verifyError ?? new Error('OTP verification failed');
+      onVerified({
+        fullName: data.user.user_metadata?.full_name ?? fullName,
+        email: data.user.email ?? email,
+        avatarUrl: data.user.user_metadata?.avatar_url,
+        verified: true,
+      });
       setIsOpen(false);
     } catch (issue) {
       setError(mapError(issue, 'verify'));
     } finally {
       setIsVerifying(false);
     }
+  };
+
+  const signInWithProvider = async (provider: 'google' | 'github' | 'apple') => {
+    setError('');
+    const { error: oauthError } = await getSupabaseClient().auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: import.meta.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (oauthError) setError(words.oauthUnavailable);
   };
 
   const formatSeconds = (seconds: number) => {
@@ -318,14 +324,11 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
                 </form>
                 <p className="demo-disclosure" id="newsletter-note"><span className="demo-indicator" />{words.deliveryNote}</p>
                 <div className="social-login-options" aria-label="خيارات تسجيل الدخول">
-                  <button type="button" onClick={() => setError(words.oauthUnavailable)}><SiGoogle aria-hidden="true" />{words.socialGoogle}</button>
-                  <button type="button" onClick={() => setError(words.oauthUnavailable)}><SiGithub aria-hidden="true" />{words.socialGithub}</button>
-                  <button type="button" onClick={() => setError(words.oauthUnavailable)}><SiApple aria-hidden="true" />{words.socialApple}</button>
+                  <button type="button" onClick={() => void signInWithProvider('google')}><SiGoogle aria-hidden="true" />{words.socialGoogle}</button>
+                  <button type="button" onClick={() => void signInWithProvider('github')}><SiGithub aria-hidden="true" />{words.socialGithub}</button>
+                  <button type="button" onClick={() => void signInWithProvider('apple')}><SiApple aria-hidden="true" />{words.socialApple}</button>
                 </div>
                 {error && !isOpen && <p className="newsletter-error" role="alert">{error}</p>}
-                {challengeId && !isOpen && (
-                  <button className="otp-resume" type="button" onClick={() => setIsOpen(true)}>{words.resume}</button>
-                )}
               </>
             )}
           </div>
