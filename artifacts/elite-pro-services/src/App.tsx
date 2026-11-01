@@ -29,6 +29,7 @@ import { PaymentCards } from '@/components/payment-cards';
 import { FloatingAssistant } from '@/components/floating-assistant';
 import { ProjectEstimator } from '@/components/project-estimator';
 import { SoundToggle } from '@/components/sound-toggle';
+import { getSupabaseClient } from '@/lib/supabase';
 import { localeOptions, translations, type Locale } from '@/data/translations';
 import {
   Route,
@@ -50,15 +51,31 @@ function Home() {
   const profileQuery = useQuery<ClientProfile | null>({
     queryKey: profileQueryKey,
     queryFn: async () => {
-      const response = await fetch('/api/profile', { credentials: 'same-origin' });
-      if (response.status === 401) return null;
-      if (!response.ok) throw new Error('Unable to load client profile');
-      const result = await response.json() as { profile: ClientProfile | null };
-      return result.profile;
+      const { data: { session } } = await getSupabaseClient().auth.getSession();
+      if (!session?.user) return null;
+      const user = session.user;
+      return {
+        fullName: user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? 'Client',
+        email: user.email ?? '',
+        avatarUrl: user.user_metadata?.avatar_url ?? user.user_metadata?.picture,
+        verified: true,
+      };
     },
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      queryClient.setQueryData(profileQueryKey, session?.user ? {
+        fullName: session.user.user_metadata?.full_name ?? session.user.user_metadata?.name ?? session.user.email?.split('@')[0] ?? 'Client',
+        email: session.user.email ?? '',
+        avatarUrl: session.user.user_metadata?.avatar_url ?? session.user.user_metadata?.picture,
+      } : null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
   const profile = profileQuery.data ?? null;
   const onVerified = (verifiedProfile: ClientProfile) => queryClient.setQueryData(profileQueryKey, verifiedProfile);
   const onSignedOut = () => queryClient.setQueryData(profileQueryKey, null);
