@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, LoaderCircle, X } from 'lucide-react';
-import { SiApple, SiGithub, SiGoogle } from 'react-icons/si';
+import { SiGithub, SiGoogle } from 'react-icons/si';
 import type { Locale, SiteCopy } from '@/data/translations';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { ClientProfile } from './client-profile-menu';
@@ -16,7 +16,7 @@ type NewsletterDemoProps = {
 const ui: Record<Locale, {
   eyebrow: string; first: string; second: string; description: string; fullName: string; fullNamePlaceholder: string;
   email: string; placeholder: string; submit: string; deliveryNote: string; socialGoogle: string; socialGithub: string;
-  socialApple: string; oauthUnavailable: string; modalTitle: string; modalDescription: string; sent: string;
+  oauthUnavailable: string; modalTitle: string; modalDescription: string; sent: string;
   codeLabel: string; verify: string; close: string; resume: string; resend: string; resendIn: string;
   invalidEmail: string; invalidName: string; invalidCode: string; expired: string; rateLimited: string;
   providerMissing: string; sendFailed: string; verified: string; accountWelcome: string; loadingProfile: string;
@@ -26,7 +26,7 @@ const ui: Record<Locale, {
     description: 'أنشئ حسابك ببريدك الإلكتروني واستمتع بمزايا العملاء. سنرسل رمز تحقق حقيقي إلى بريدك.',
     fullName: 'الاسم الكامل', fullNamePlaceholder: 'اكتب اسمك الكامل', email: 'البريد الإلكتروني', placeholder: 'name@example.com', submit: 'استمرار',
     deliveryNote: 'رمز تحقق من 6 أرقام سيصلك عبر البريد الإلكتروني.',
-    socialGoogle: 'المتابعة عبر Google', socialGithub: 'المتابعة عبر GitHub', socialApple: 'المتابعة عبر Apple',
+    socialGoogle: 'المتابعة عبر Google', socialGithub: 'المتابعة عبر GitHub',
     oauthUnavailable: 'الدخول عبر هذا المزود يحتاج إعداداً خارجياً. استخدم التحقق بالبريد الإلكتروني حالياً.',
     modalTitle: 'تحقق من بريدك', modalDescription: 'أرسلنا رمزاً إلى {email}. أدخله هنا خلال 10 دقائق.',
     sent: 'تم إرسال الرمز إلى بريدك.', codeLabel: 'رمز التحقق المكوّن من 6 أرقام',
@@ -43,7 +43,7 @@ const ui: Record<Locale, {
     description: 'Create your account with a real email verification code and unlock client perks.',
     fullName: 'Full name', fullNamePlaceholder: 'Enter your full name', email: 'Email address', placeholder: 'name@example.com', submit: 'Continue',
     deliveryNote: 'A six-digit verification code will be sent to your inbox.',
-    socialGoogle: 'Continue with Google', socialGithub: 'Continue with GitHub', socialApple: 'Continue with Apple',
+    socialGoogle: 'Continue with Google', socialGithub: 'Continue with GitHub',
     oauthUnavailable: 'This sign-in provider needs external setup. Use email verification for now.',
     modalTitle: 'Check your inbox', modalDescription: 'We sent a code to {email}. Enter it within 10 minutes.',
     sent: 'A verification code was sent to your inbox.', codeLabel: '6-digit verification code',
@@ -60,7 +60,7 @@ const ui: Record<Locale, {
     description: 'Créez votre compte avec un vrai code envoyé par e-mail et accédez aux avantages clients.',
     fullName: 'Nom complet', fullNamePlaceholder: 'Saisissez votre nom complet', email: 'Adresse e-mail', placeholder: 'name@example.com', submit: 'Continuer',
     deliveryNote: 'Un code de vérification à six chiffres sera envoyé dans votre boîte mail.',
-    socialGoogle: 'Continuer avec Google', socialGithub: 'Continuer avec GitHub', socialApple: 'Continuer avec Apple',
+    socialGoogle: 'Continuer avec Google', socialGithub: 'Continuer avec GitHub',
     oauthUnavailable: 'Ce fournisseur nécessite une configuration externe. Utilisez la vérification par e-mail.',
     modalTitle: 'Vérifiez votre boîte mail', modalDescription: 'Un code a été envoyé à {email}. Saisissez-le sous 10 minutes.',
     sent: 'Un code de vérification a été envoyé.', codeLabel: 'Code de vérification à six chiffres',
@@ -77,7 +77,7 @@ const ui: Record<Locale, {
     description: 'Crea tu cuenta con un código de verificación real y accede a las ventajas para clientes.',
     fullName: 'Nombre completo', fullNamePlaceholder: 'Introduce tu nombre completo', email: 'Correo electrónico', placeholder: 'name@example.com', submit: 'Continuar',
     deliveryNote: 'Enviaremos un código de verificación de seis dígitos a tu bandeja de entrada.',
-    socialGoogle: 'Continuar con Google', socialGithub: 'Continuar con GitHub', socialApple: 'Continuar con Apple',
+    socialGoogle: 'Continuar con Google', socialGithub: 'Continuar con GitHub',
     oauthUnavailable: 'Este proveedor requiere configuración externa. Usa la verificación por correo.',
     modalTitle: 'Revisa tu bandeja de entrada', modalDescription: 'Enviamos un código a {email}. Introdúcelo en 10 minutos.',
     sent: 'Se ha enviado un código de verificación.', codeLabel: 'Código de verificación de 6 dígitos',
@@ -94,7 +94,7 @@ const ui: Record<Locale, {
     description: 'Erstellen Sie Ihr Konto mit einem echten E-Mail-Code und schalten Sie Kundenvorteile frei.',
     fullName: 'Vollständiger Name', fullNamePlaceholder: 'Geben Sie Ihren Namen ein', email: 'E-Mail-Adresse', placeholder: 'name@example.com', submit: 'Weiter',
     deliveryNote: 'Ein sechsstelliger Bestätigungscode wird an Ihr Postfach gesendet.',
-    socialGoogle: 'Mit Google fortfahren', socialGithub: 'Mit GitHub fortfahren', socialApple: 'Mit Apple fortfahren',
+    socialGoogle: 'Mit Google fortfahren', socialGithub: 'Mit GitHub fortfahren',
     oauthUnavailable: 'Dieser Anbieter benötigt eine externe Einrichtung. Nutzen Sie vorerst die E-Mail-Verifizierung.',
     modalTitle: 'Posteingang prüfen', modalDescription: 'Wir haben einen Code an {email} gesendet. Geben Sie ihn innerhalb von 10 Minuten ein.',
     sent: 'Ein Bestätigungscode wurde gesendet.', codeLabel: 'Sechsstelliger Bestätigungscode',
@@ -233,7 +233,7 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
     }
   };
 
-  const signInWithProvider = async (provider: 'google' | 'github' | 'apple') => {
+  const signInWithProvider = async (provider: 'google' | 'github') => {
     setError('');
     const { error: oauthError } = await getSupabaseClient().auth.signInWithOAuth({
       provider,
@@ -326,7 +326,6 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
                 <div className="social-login-options" aria-label="خيارات تسجيل الدخول">
                   <button type="button" onClick={() => void signInWithProvider('google')}><SiGoogle aria-hidden="true" />{words.socialGoogle}</button>
                   <button type="button" onClick={() => void signInWithProvider('github')}><SiGithub aria-hidden="true" />{words.socialGithub}</button>
-                  <button type="button" onClick={() => void signInWithProvider('apple')}><SiApple aria-hidden="true" />{words.socialApple}</button>
                 </div>
                 {error && !isOpen && <p className="newsletter-error" role="alert">{error}</p>}
               </>
