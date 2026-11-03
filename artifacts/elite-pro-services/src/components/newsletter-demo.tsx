@@ -235,11 +235,13 @@ export function NewsletterDemo({ copy, locale, profile, isProfileLoading, onVeri
 
   const signInWithProvider = async (provider: 'google' | 'github') => {
     setError('');
+      const previewRedirect = import.meta.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL?.trim();
+    const redirectTo = import.meta.env.PROD || !previewRedirect
+      ? `${window.location.origin}/auth/callback`
+      : previewRedirect;
     const { error: oauthError } = await getSupabaseClient().auth.signInWithOAuth({
       provider,
-      options: {
-        redirectTo: import.meta.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
-      },
+      options: { redirectTo },
     });
     if (oauthError) setError(words.oauthUnavailable);
   };

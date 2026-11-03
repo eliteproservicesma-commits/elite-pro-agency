@@ -67,6 +67,17 @@ function Home() {
 
   useEffect(() => {
     const supabase = getSupabaseClient();
+    const callbackUrl = new URL(window.location.href);
+    const code = callbackUrl.searchParams.get('code');
+    if (window.location.pathname === '/auth/callback' && code) {
+      void supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (!error) {
+          window.history.replaceState({}, document.title, '/');
+          queryClient.invalidateQueries({ queryKey: profileQueryKey });
+        }
+      });
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       queryClient.setQueryData(profileQueryKey, session?.user ? {
         fullName: session.user.user_metadata?.full_name ?? session.user.user_metadata?.name ?? session.user.email?.split('@')[0] ?? 'Client',
