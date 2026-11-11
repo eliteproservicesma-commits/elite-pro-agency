@@ -67,7 +67,7 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  const secret = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
+  const secret = env.RESEND_API_KEY?.trim();
   const token = readCookie(request);
   const session = secret && token ? readSession(token, secret) : null;
   if (!session) {

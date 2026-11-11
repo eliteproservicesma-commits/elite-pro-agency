@@ -56,17 +56,17 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
-  if (challenge.mode !== 'email' || !challenge.digest || !challenge.email || !challenge.fullName || !signature || !appPassword) {
+  const resendApiKey = env.RESEND_API_KEY?.trim();
+  if (challenge.mode !== 'email' || !challenge.digest || !challenge.email || !challenge.fullName || !signature || !resendApiKey) {
     response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
     return;
   }
 
-  if (!verifySignature(encodedPayload, signature, appPassword)) {
+  if (!verifySignature(encodedPayload, signature, resendApiKey)) {
     response(res, 400, { code: 'invalid_code', error: 'That code is not valid.' });
     return;
   }
-  if (!verifySignature(code, challenge.digest, appPassword)) {
+  if (!verifySignature(code, challenge.digest, resendApiKey)) {
     response(res, 400, { code: 'invalid_code', error: 'That code is not correct.' });
     return;
   }
@@ -76,7 +76,7 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     fullName: challenge.fullName,
     expiresAt: Date.now() + sessionLifetimeSeconds * 1000,
   };
-  const sessionToken = makeChallenge(sessionPayload, appPassword);
+  const sessionToken = makeChallenge(sessionPayload, resendApiKey);
   const secure = env.NODE_ENV === 'production' ? '; Secure' : '';
   res.setHeader('Set-Cookie', `elitepro_session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${sessionLifetimeSeconds}${secure}`);
   res.setHeader('Cache-Control', 'no-store');

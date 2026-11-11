@@ -4,72 +4,6 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-catalogs:
-  default:
-    '@replit/vite-plugin-cartographer':
-      specifier: ^0.5.21
-      version: 0.5.21
-    '@replit/vite-plugin-dev-banner':
-      specifier: ^0.1.1
-      version: 0.1.2
-    '@replit/vite-plugin-runtime-error-modal':
-      specifier: ^0.0.6
-      version: 0.0.6
-    '@tailwindcss/vite':
-      specifier: ^4.1.14
-      version: 4.3.3
-    '@tanstack/react-query':
-      specifier: ^5.90.21
-      version: 5.102.8
-    '@types/node':
-      specifier: ^25.3.3
-      version: 25.9.6
-    '@types/react':
-      specifier: ^19.2.0
-      version: 19.3.0
-    '@types/react-dom':
-      specifier: ^19.2.0
-      version: 19.3.0
-    '@vitejs/plugin-react':
-      specifier: ^5.0.4
-      version: 5.2.0
-    class-variance-authority:
-      specifier: ^0.7.1
-      version: 0.7.1
-    clsx:
-      specifier: ^2.1.1
-      version: 2.1.1
-    drizzle-orm:
-      specifier: ^0.45.2
-      version: 0.45.2
-    framer-motion:
-      specifier: ^12.23.24
-      version: 12.43.0
-    lucide-react:
-      specifier: ^0.545.0
-      version: 0.545.0
-    react:
-      specifier: 19.1.0
-      version: 19.1.0
-    react-dom:
-      specifier: 19.1.0
-      version: 19.1.0
-    tailwind-merge:
-      specifier: ^3.3.1
-      version: 3.6.0
-    tailwindcss:
-      specifier: ^4.1.14
-      version: 4.3.3
-    tsx:
-      specifier: ^4.21.0
-      version: 4.23.13
-    vite:
-      specifier: ^7.3.2
-      version: 7.3.6
-    zod:
-      specifier: ^3.25.76
-      version: 3.25.76
-
 overrides:
   esbuild>@esbuild/darwin-arm64: '-'
   esbuild>@esbuild/darwin-x64: '-'
@@ -161,16 +95,10 @@ importers:
       '@replit/connectors-sdk':
         specifier: ^0.4.3
         version: 0.4.3
-      nodemailer:
-        specifier: ^10.2.1
-        version: 10.2.1
     devDependencies:
       '@types/node':
         specifier: ^25.9.6
         version: 25.9.6
-      '@types/nodemailer':
-        specifier: ^8.0.2
-        version: 8.0.2
       prettier:
         specifier: ^3.9.6
         version: 3.9.6
@@ -1759,9 +1687,6 @@ packages:
   '@types/node@25.9.6':
     resolution: {integrity: sha512-JR6Q/PV5DKFvjrGFVqQJdeG0qvsqQQLDa3TzFrqVwhqRXqwNaxPo2KYCtCQXpOdIulCouKwT7a6in9nFthBAzw==}
 
-  '@types/nodemailer@8.0.2':
-    resolution: {integrity: sha512-c7M5ox8p0nEOfbJ2E9Qcmt8/QCu/VzsiAhzBiZbvky2PhKZDHpKB3sQHBM5MEZNkCfBOaS6S9//AGPRTNB7IaA==}
-
   '@types/pg@8.23.1':
     resolution: {integrity: sha512-fKVHpikPdg4GKks3JuLEhvwSyvwzF23hnabPy6DD8ljVbC7+6J5dQzdv4arV6jqq57djnMgs1HKBxX4P8aBI3A==}
 
@@ -2602,10 +2527,6 @@ packages:
   node-releases@2.0.55:
     resolution: {integrity: sha512-mIrE/Cw9y+9Au6dS5vDKDhQza9YvG6w+ZrS6X+ZzA7yFW/soAeaups4Qzn1bL6g5FVy8WtP79+0j82oPIbqRjQ==}
     engines: {node: '>=18'}
-
-  nodemailer@10.2.1:
-    resolution: {integrity: sha512-ZrDNsPFoDMwefNs7sJwrYiEJ/CG4ClJWDZv05iNJsEBWa8GRDry1QJHTJxsuTAY9eDDKjX4k+q3SxslXJOao7w==}
-    engines: {node: '>=20.0.0'}
 
   npm-run-path@6.0.0:
     resolution: {integrity: sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA==}
@@ -4530,10 +4451,6 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
-  '@types/nodemailer@8.0.2':
-    dependencies:
-      '@types/node': 25.9.6
-
   '@types/pg@8.23.1':
     dependencies:
       '@types/node': 25.9.6
@@ -5238,8 +5155,6 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   node-releases@2.0.55: {}
-
-  nodemailer@10.2.1: {}
 
   npm-run-path@6.0.0:
     dependencies:

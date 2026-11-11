@@ -1,4 +1,3 @@
-import { createTransport } from 'nodemailer';
 import { env } from 'node:process';
 import { makeChallenge, randomOtp, signValue } from './otp-node';
 
@@ -45,9 +44,8 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  const gmailUser = env.GMAIL_USER?.trim();
-  const appPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
-  if (!gmailUser || !appPassword) {
+  const resendApiKey = env.RESEND_API_KEY?.trim();
+  if (!resendApiKey) {
     response(res, 503, {
       code: 'email_not_configured',
       error: 'Email verification is temporarily unavailable. Please try again later.',
@@ -72,32 +70,39 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
   let challengeId: string;
 
   try {
-    const transporter = createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: { user: gmailUser, pass: appPassword },
-        connectionTimeout: 10_000,
-        greetingTimeout: 10_000,
-        socketTimeout: 15_000,
-      });
-    await transporter.sendMail({
-        from: { name: 'Elite Pro Services', address: gmailUser },
-        to: email,
+    const delivery = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Elite Pro Services <onboarding@resend.dev>',
+        to: [email],
         subject: 'Your Elite Pro Services verification code',
         text: `Your verification code is ${code}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
         html: `<div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6"><h2>Verify your email</h2><p>Your Elite Pro Services verification code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
+      }),
+      signal: AbortSignal.timeout(10_000),
     });
-  } catch {
+
+    if (!delivery.ok) {
       response(res, 502, {
         code: 'email_delivery_failed',
         error: 'The verification email could not be sent. Please try again later.',
       });
       return;
     }
+  } catch {
+    response(res, 502, {
+      code: 'email_delivery_failed',
+      error: 'The verification email could not be sent. Please try again later.',
+    });
+    return;
+  }
 
-  const digest = signValue(code, appPassword);
-  challengeId = makeChallenge({ mode: 'email', email, fullName, expiresAt, digest } satisfies ChallengePayload, appPassword);
+  const digest = signValue(code, resendApiKey);
+  challengeId = makeChallenge({ mode: 'email', email, fullName, expiresAt, digest } satisfies ChallengePayload, resendApiKey);
 
   window.sentAt.push(now);
   sendWindows.set(email, window);
