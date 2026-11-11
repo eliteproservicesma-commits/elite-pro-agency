@@ -10,6 +10,8 @@ type ApiResponse = {
 type ChallengePayload = { mode: 'email'; expiresAt: number; digest: string; email: string; fullName: string };
 type SendWindow = { sentAt: number[] };
 
+export const config = { runtime: 'nodejs' };
+
 const challengeLifetimeMs = 10 * 60 * 1000;
 const resendCooldownMs = 60 * 1000;
 const hourlyLimit = 3;
