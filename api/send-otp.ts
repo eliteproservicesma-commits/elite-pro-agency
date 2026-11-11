@@ -86,7 +86,7 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
       signal: AbortSignal.timeout(10_000),
     });
 
-    if (!delivery.ok) {
+    if (delivery.status < 200 || delivery.status >= 300) {
       response(res, 502, {
         code: 'email_delivery_failed',
         error: 'The verification email could not be sent. Please try again later.',
