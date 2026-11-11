@@ -8,6 +8,9 @@ type ApiResponse = {
   setHeader: (name: string, value: string) => void;
 };
 type ChallengePayload = { mode: 'email'; expiresAt: number; digest: string; email: string; fullName: string };
+
+export const config = { runtime: 'nodejs' };
+
 const sessionLifetimeSeconds = 60 * 60 * 24 * 30;
 
 function response(res: ApiResponse, status: number, body: unknown) {
