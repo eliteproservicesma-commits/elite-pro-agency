@@ -84,7 +84,7 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
         html: `<div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6"><h2>Verify your email</h2><p>Your Elite Pro Services verification code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
       }),
       signal: AbortSignal.timeout(10_000),
-    });
+    }) as unknown as { status: number };
 
     if (delivery.status < 200 || delivery.status >= 300) {
       response(res, 502, {
