@@ -12,6 +12,8 @@ type ApiResponse = {
 };
 type SessionPayload = { email: string; fullName: string; expiresAt: number };
 
+export const config = { runtime: 'nodejs' };
+
 const cookieName = 'elitepro_session';
 const sessionLifetimeSeconds = 60 * 60 * 24 * 30;
 

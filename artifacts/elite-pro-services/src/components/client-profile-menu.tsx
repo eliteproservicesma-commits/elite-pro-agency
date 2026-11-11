@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, BadgeCheck, CircleUserRound, Languages, LogOut, Settings2, X } from 'lucide-react';
-import { getSupabaseClient } from '@/lib/supabase';
 import type { Locale } from '@/data/translations';
 
 export type ClientProfile = { email: string; fullName: string; verified: true; avatarUrl?: string };
@@ -108,8 +107,8 @@ export function ClientProfileMenu({ profile, locale, perks, onSignedOut }: Clien
     setIsSigningOut(true);
     setError('');
     try {
-      const { error: signOutError } = await getSupabaseClient().auth.signOut();
-      if (signOutError) throw signOutError;
+      const response = await fetch('/api/profile', { method: 'DELETE', credentials: 'same-origin' });
+      if (!response.ok) throw new Error('Sign out failed');
       setIsOpen(false);
       onSignedOut();
     } catch {
