@@ -29,7 +29,6 @@ import { PaymentCards } from '@/components/payment-cards';
 import { FloatingAssistant } from '@/components/floating-assistant';
 import { ProjectEstimator } from '@/components/project-estimator';
 import { SoundToggle } from '@/components/sound-toggle';
-import LoginPage from '@/pages/login';
 import { localeOptions, translations, type Locale } from '@/data/translations';
 import {
   Link,
@@ -49,6 +48,7 @@ const configuredApiOrigin = import.meta.env.VITE_API_BASE_URL?.trim();
 if (configuredApiOrigin) setBaseUrl(configuredApiOrigin);
 
 function Home() {
+  const [location] = useLocation();
   const profileQuery = useQuery<ClientProfile | null>({
     queryKey: profileQueryKey,
     queryFn: async () => {
@@ -105,6 +105,17 @@ function Home() {
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (location !== '/login' || profileQuery.isLoading) return;
+    const frame = window.requestAnimationFrame(() => {
+      const section = document.getElementById('newsletter');
+      if (!section) return;
+      section.scrollIntoView({ behavior: 'auto', block: 'center' });
+      document.getElementById('newsletter-email')?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [location, profileQuery.isLoading]);
 
   const closeMenu = () => setMenuOpen(false);
   const submitInquiry = (event: FormEvent<HTMLFormElement>) => {
@@ -183,7 +194,7 @@ function Home() {
         <a href="#services" onClick={closeMenu}>{copy.nav.services}</a>
         <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
         <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
-        <Link href="/login" onClick={closeMenu}>{signInLabels[locale]}</Link>
+        {!profile && <Link href="/login" onClick={closeMenu}>{signInLabels[locale]}</Link>}
         <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
         <div className="mobile-menu-controls">
           <label className="language-picker">
@@ -346,7 +357,7 @@ function Router() {
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/login" component={LoginPage} />
+        <Route path="/login" component={Home} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>

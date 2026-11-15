@@ -9,4 +9,6 @@
 export interface OtpEmailInput {
   /** @maxLength 254 */
   email: string;
+  /** @maxLength 80 */
+  fullName?: string;
 }

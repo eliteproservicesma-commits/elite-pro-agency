@@ -18,14 +18,15 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * @summary Send a six-digit verification code to a Gmail address
+ * @summary Send a six-digit verification code to an email address
  */
 export const sendNewsletterOtpBodyEmailMax = 254;
 
 
 
 export const SendNewsletterOtpBody = zod.object({
-  "email": zod.string().email().max(sendNewsletterOtpBodyEmailMax)
+  "email": zod.string().email().max(sendNewsletterOtpBodyEmailMax),
+  "fullName": zod.string().trim().min(1).max(80).optional()
 })
 
 
@@ -49,7 +50,12 @@ export const VerifyNewsletterOtpBody = zod.object({
 })
 
 export const VerifyNewsletterOtpResponse = zod.object({
-  "verified": zod.boolean()
+  "verified": zod.boolean(),
+  "profile": zod.object({
+    "email": zod.string().email().max(sendNewsletterOtpBodyEmailMax),
+    "fullName": zod.string().min(1).max(80),
+    "verified": zod.boolean()
+  }).optional()
 })
 
 
