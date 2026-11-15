@@ -31,6 +31,7 @@ import { ProjectEstimator } from '@/components/project-estimator';
 import { SoundToggle } from '@/components/sound-toggle';
 import { localeOptions, translations, type Locale } from '@/data/translations';
 import {
+  Link,
   Route,
   Switch,
   useLocation,
@@ -47,7 +48,7 @@ const configuredApiOrigin = import.meta.env.VITE_API_BASE_URL?.trim();
 if (configuredApiOrigin) setBaseUrl(configuredApiOrigin);
 
 function Home() {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const profileQuery = useQuery<ClientProfile | null>({
     queryKey: profileQueryKey,
     queryFn: async () => {
@@ -166,13 +167,9 @@ function Home() {
               {profile ? (
                 <ClientProfileMenu profile={profile} locale={locale} perks={copy.newsletter.perks} onSignedOut={onSignedOut} />
               ) : (
-                <button
-                  className="portal-trigger login-trigger"
-                  type="button"
-                  onClick={() => setLocation('/login')}
-                >
+                <Link className="portal-trigger login-trigger" href="/login">
                   {signInLabels[locale]}
-                </button>
+                </Link>
               )}
             </div>
             <button className="menu-toggle" type="button" aria-label={menuOpen ? copy.nav.closeMenu : copy.nav.openMenu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)} data-testid="button-menu-toggle">
@@ -197,8 +194,8 @@ function Home() {
         <a href="#services" onClick={closeMenu}>{copy.nav.services}</a>
         <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
         <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
+        {!profile && <Link href="/login" onClick={closeMenu}>{signInLabels[locale]}</Link>}
         <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
-        {!profile && <a href="/login" onClick={(event) => { event.preventDefault(); setLocation('/login'); closeMenu(); }}>{signInLabels[locale]}</a>}
         <div className="mobile-menu-controls">
           <label className="language-picker">
             <span className="sr-only">{copy.language}</span>
