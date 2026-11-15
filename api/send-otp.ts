@@ -130,7 +130,9 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
       signal: AbortSignal.timeout(10_000),
     });
 
-    if (!delivery.ok) throw new Error('Resend did not accept the OTP email.');
+    if (delivery.status < 200 || delivery.status >= 300) {
+      throw new Error('Resend did not accept the OTP email.');
+    }
   } catch {
     response(res, 502, { code: 'email_delivery_failed', error: 'The verification email could not be sent. Please try again later.' });
     return;
