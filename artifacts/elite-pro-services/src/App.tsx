@@ -29,8 +29,10 @@ import { PaymentCards } from '@/components/payment-cards';
 import { FloatingAssistant } from '@/components/floating-assistant';
 import { ProjectEstimator } from '@/components/project-estimator';
 import { SoundToggle } from '@/components/sound-toggle';
+import LoginPage from '@/pages/login';
 import { localeOptions, translations, type Locale } from '@/data/translations';
 import {
+  Link,
   Route,
   Switch,
   useLocation,
@@ -154,13 +156,9 @@ function Home() {
               {profile ? (
                 <ClientProfileMenu profile={profile} locale={locale} perks={copy.newsletter.perks} onSignedOut={onSignedOut} />
               ) : (
-                <button
-                  className="portal-trigger login-trigger"
-                  type="button"
-                  onClick={() => document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                >
+                <Link className="portal-trigger login-trigger" href="/login">
                   {signInLabels[locale]}
-                </button>
+                </Link>
               )}
             </div>
             <button className="menu-toggle" type="button" aria-label={menuOpen ? copy.nav.closeMenu : copy.nav.openMenu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)} data-testid="button-menu-toggle">
@@ -185,6 +183,7 @@ function Home() {
         <a href="#services" onClick={closeMenu}>{copy.nav.services}</a>
         <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
         <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
+        <Link href="/login" onClick={closeMenu}>{signInLabels[locale]}</Link>
         <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
         <div className="mobile-menu-controls">
           <label className="language-picker">
@@ -347,6 +346,7 @@ function Router() {
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/login" component={LoginPage} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
