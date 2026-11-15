@@ -67,7 +67,7 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  const secret = env.RESEND_API_KEY?.trim();
+  const secret = env.SUPABASE_JWT_SECRET?.trim();
   const token = readCookie(request);
   const session = secret && token ? readSession(token, secret) : null;
   if (!session) {

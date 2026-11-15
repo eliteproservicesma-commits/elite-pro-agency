@@ -47,6 +47,7 @@ const configuredApiOrigin = import.meta.env.VITE_API_BASE_URL?.trim();
 if (configuredApiOrigin) setBaseUrl(configuredApiOrigin);
 
 function Home() {
+  const [location, setLocation] = useLocation();
   const profileQuery = useQuery<ClientProfile | null>({
     queryKey: profileQueryKey,
     queryFn: async () => {
@@ -104,6 +105,17 @@ function Home() {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
+  useEffect(() => {
+    if (location !== '/login' || profileQuery.isLoading) return;
+    const frame = window.requestAnimationFrame(() => {
+      const section = document.getElementById('newsletter');
+      if (!section) return;
+      section.scrollIntoView({ behavior: 'auto', block: 'center' });
+      document.getElementById('newsletter-email')?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [location, profileQuery.isLoading]);
+
   const closeMenu = () => setMenuOpen(false);
   const submitInquiry = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -157,7 +169,7 @@ function Home() {
                 <button
                   className="portal-trigger login-trigger"
                   type="button"
-                  onClick={() => document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  onClick={() => setLocation('/login')}
                 >
                   {signInLabels[locale]}
                 </button>
@@ -186,6 +198,7 @@ function Home() {
         <a href="#work" onClick={closeMenu}>{copy.nav.work}</a>
         <a href="#studio" onClick={closeMenu}>{copy.nav.studio}</a>
         <a href="#contact" onClick={closeMenu}>{copy.nav.start}</a>
+        {!profile && <a href="/login" onClick={(event) => { event.preventDefault(); setLocation('/login'); closeMenu(); }}>{signInLabels[locale]}</a>}
         <div className="mobile-menu-controls">
           <label className="language-picker">
             <span className="sr-only">{copy.language}</span>
@@ -347,6 +360,7 @@ function Router() {
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/login" component={Home} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>

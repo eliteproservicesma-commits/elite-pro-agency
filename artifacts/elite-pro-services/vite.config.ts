@@ -51,6 +51,15 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/node_modules/three/')) return 'three-vendor';
+          if (id.includes('/node_modules/@react-three/fiber/')) return 'react-three-vendor';
+        },
+      },
+    },
   },
   server: {
     port,

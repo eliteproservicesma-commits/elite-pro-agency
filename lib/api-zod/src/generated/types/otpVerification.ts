@@ -8,4 +8,9 @@
 
 export interface OtpVerification {
   verified: boolean;
+  profile?: {
+    email: string;
+    fullName: string;
+    verified: boolean;
+  };
 }
