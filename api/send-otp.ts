@@ -1,4 +1,5 @@
 import { env } from 'node:process';
+import nodemailer from 'nodemailer';
 import { isOtpStorageConfigured, issueOtpChallenge } from './otp-storage';
 import { randomOtp, signValue } from './otp-node';
 
@@ -18,12 +19,23 @@ type IssueOtpResult = {
   error?: string;
   retryAfterSeconds?: number;
 };
-type ResendResponse = { status: number };
-
 export const config = { runtime: 'nodejs' };
 
 const challengeLifetimeMs = 10 * 60 * 1000;
 const challengeIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const gmailUser = env.GMAIL_USER?.trim();
+const gmailAppPassword = env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
+const gmailTransporter = gmailUser && gmailAppPassword
+  ? nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: { user: gmailUser, pass: gmailAppPassword },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 10_000,
+  })
+  : null;
 
 function response(res: ApiResponse, status: number, body: unknown) {
   res.setHeader('Cache-Control', 'no-store');
@@ -74,9 +86,8 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
     return;
   }
 
-  const resendApiKey = env.RESEND_API_KEY?.trim();
   const otpSecret = env.SUPABASE_JWT_SECRET?.trim();
-  if (!resendApiKey) {
+  if (!gmailUser || !gmailAppPassword || !gmailTransporter) {
     response(res, 503, { code: 'email_not_configured', error: 'Email verification is temporarily unavailable. Please try again later.' });
     return;
   }
@@ -115,23 +126,15 @@ export default async function handler(request: ApiRequest, res: ApiResponse): Pr
   }
 
   try {
-    const delivery = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: env.RESEND_FROM_EMAIL?.trim() || 'Elite Pro Services <onboarding@resend.dev>',
-        to: [email],
-        subject: 'Your Elite Pro Services verification code',
-        text: `Your verification code is ${code}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
-        html: `<div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6"><h2>Verify your email</h2><p>Your Elite Pro Services verification code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
-      }),
-      signal: AbortSignal.timeout(10_000),
-    }) as unknown as ResendResponse;
+    const delivery = await gmailTransporter.sendMail({
+      from: { name: 'Elite Pro Services', address: gmailUser },
+      to: email,
+      subject: 'Your Elite Pro Services verification code',
+      text: `Your verification code is ${code}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
+      html: `<div style="font-family:Arial,sans-serif;color:#171717;line-height:1.6"><h2>Verify your email</h2><p>Your Elite Pro Services verification code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
+    });
 
-    if (delivery.status < 200 || delivery.status >= 300) throw new Error('Resend rejected the OTP email.');
+    if (!delivery.accepted.length) throw new Error('Gmail did not accept the OTP email.');
   } catch {
     response(res, 502, { code: 'email_delivery_failed', error: 'The verification email could not be sent. Please try again later.' });
     return;
